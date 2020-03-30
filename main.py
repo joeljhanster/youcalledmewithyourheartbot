@@ -10,7 +10,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-UPLOAD_PHOTO, INSERT_CAPTION = range(2)
+WRITE_WORD, UPLOAD_PHOTO, INSERT_CAPTION = range(3)
 
 day0 = datetime.date(2020,5,17)
 chatId = []
@@ -20,6 +20,21 @@ def start(update, context):
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
+# WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
+def write(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Surprise your lover with a word of encouragement! <3")
+    return WRITE_WORD
+
+def word(update, context):
+    for id in chatId:
+        if id != update.effective_chat.id:
+            context.bot.send_message(chat_id=id, text="Your partner has a word of encouragement for you! Remember to show your appreciation!")
+            context.bot.send_message(chat_id=id, text=update.message.text)
+        else:
+            context.bot.send_message(chat_id=id, text="Your partner should have received your word of encouragement!")
+    return ConversationHandler.END
+
+# JOURNAL: STORE OUR FAVOURITE PHOTOS AND CAPTION IT! LET'S KEEP OUR MEMORIES!
 def journal(update, context):
     # Prompt user to upload a picture
     context.bot.send_message(chat_id=update.effective_chat.id, text="Have a memory that you wish to add to the journal? First upload a photo!")
@@ -49,6 +64,7 @@ def cancel(update, context):
     update.message.reply_text('Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
+# VIEWJOURNAL: LET'S VISIT MEMORY LANE!
 def viewjournal(update, context):
     # Opens up the blogger website for browsing
     context.bot.send_message(chat_id=update.effective_chat.id, text="Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/")
@@ -71,11 +87,21 @@ def callback_minute(context):
         context.bot.send_message(chat_id=id, text="Time now is: {}".format(current_time))
 
 def main():
-    updater = Updater(token='', use_context=True)   # INSERT TOKEN
+    updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler)
+
+    ### TODO: MAKE SURE THAT THE CONVERSATIONS END BEFORE MAKING THE NEXT COMMAND ###
+    write_handler = ConversationHandler(
+        entry_points = [CommandHandler('write', write)],
+        states = {
+            WRITE_WORD: [MessageHandler(Filters.text, word)]
+        },
+        fallbacks = [CommandHandler('cancel', cancel)]
+    )
+    dispatcher.add_handler(write_handler)
 
     journal_handler = ConversationHandler(
         entry_points = [CommandHandler('journal', journal)],
@@ -83,7 +109,7 @@ def main():
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, photo)],
             INSERT_CAPTION: [MessageHandler(Filters.text, caption)]
         },
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks = [CommandHandler('cancel', cancel)]
     )
     dispatcher.add_handler(journal_handler)
 
