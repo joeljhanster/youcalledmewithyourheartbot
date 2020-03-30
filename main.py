@@ -39,8 +39,6 @@ def photo(update, context):
 def caption(update, context):
     # Record the description of the photo and store it into the blog
     message = update.message.text
-    
-    # 
     print (message)
     update.message.reply_text("The blog has been updated! Type /viewjournal to take a look!")
     return ConversationHandler.END
@@ -70,7 +68,7 @@ def callback_minute(context):
         context.bot.send_message(chat_id=id, text="Time now is: {}".format(current_time))
 
 def main():
-    updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)
+    updater = Updater(token='', use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
