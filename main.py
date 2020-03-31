@@ -174,7 +174,9 @@ def get_blogger_service_obj():
         else:
             flow = InstalledAppFlow.from_client_secrets_file('client_secret_1044751721266-cbvnnlkrfuuogp35but2hon3ia31ld33.apps.googleusercontent.com.json', SCOPES)
             # creds = flow.run_local_server(port = 0)
-            creds = flow.run_console()
+            flow.run_console()
+            creds = flow.credentials
+            print ("This is creds: {}".format(creds))
         # Save the credentials for the next run
         with open('auth_token.pickle', 'wb') as token:
             pickle.dump(creds, token)
