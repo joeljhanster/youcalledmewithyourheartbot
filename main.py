@@ -1,6 +1,18 @@
 # This bot is made with love <3
+import sys
+import os
+import pickle
+import json
+from oauth2client import client
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
+from apiclient.http import MediaFileUpload
+
 import datetime
-from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext
+from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
 from telegram import InlineQueryResultArticle, InputTextMessageContent, bot
 import logging
 
@@ -8,12 +20,23 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
+logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
-WRITE_WORD, UPLOAD_PHOTO, INSERT_CAPTION = range(3)
+WRITE_WORD, UPLOAD_PHOTO, INSERT_TITLE, INSERT_CAPTION = range(4)
 commands = ['/start', '/write', '/journal', '/viewjournal']
 
+# Blogger
+BLOG_ID = "4868757922382507011"
+SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com/auth/drive.file']
+
+# Special Dates
 day0 = datetime.date(2020,5,17)
+p_bday = datetime.date(1999,2,25)
+j_bday = datetime.date(1997,4,17)
+
+title_text = []
+filePath = []
 chatId = []
 
 def start(update, context):
@@ -49,8 +72,22 @@ def photo(update, context):
     # Retrieve photo and download it
     now = datetime.datetime.now()
     timestr = now.strftime("%d%m%Y-%H:%M:%S")
+    fileName = "{}.png".format(timestr)
     photo_file = update.message.photo[-1].get_file()
-    photo_file.download("{}.jpg".format(timestr))
+    photo_file.download(fileName)
+    filePath.append(fileName)
+    # filePath.append(os.path.abspath(fileName))
+
+    # Prompt user to write a description of the photo
+    update.message.reply_text("Insert a Title!!!")
+    return INSERT_TITLE
+
+def title(update, context):
+    boolean = check_commands(update.message.text)
+    if boolean:
+        return cancel(update, context)
+    
+    title_text.append(str(update.message.text))
 
     # Prompt user to write a description of the photo
     update.message.reply_text("Now write a story about this photo! <3")
@@ -64,7 +101,27 @@ def caption(update, context):
     # Record the description of the photo and store it into the blog
     message = update.message.text
     print (message)
-    update.message.reply_text("The blog has been updated! Type /viewjournal to take a look!")
+
+    drive_handler, blog_handler = get_blogger_service_obj()
+    url = get_drive_information(drive_handler,filePath[-1])
+    get_blog_information(blog_handler)
+
+    data = {
+        "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
+        "title": title_text[-1],
+        "blog": {
+            "id": BLOG_ID
+        }
+    }
+    
+    ### TODO: Clear the filePath and title_text list
+
+    
+    posts = blog_handler.posts()
+    res = posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
+    print(res)
+
+    update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
     return ConversationHandler.END
 
 def cancel(update, context):
@@ -96,6 +153,7 @@ def callback_minute(context):
     for id in chatId:
         context.bot.send_message(chat_id=id, text="Time now is: {}".format(current_time))
 
+# Function to check if message starts with "/"
 def check_commands(message):
     message = str(message)
     if (message[0] == '/'):
@@ -104,6 +162,59 @@ def check_commands(message):
     else:
         return False
 
+# Function to generate the blogger and drive service
+def get_blogger_service_obj():
+    creds = None
+    if os.path.exists('auth_token.pickle'):
+        with open('auth_token.pickle', 'rb') as token:
+            creds = pickle.load(token)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('client_secret_1044751721266-cbvnnlkrfuuogp35but2hon3ia31ld33.apps.googleusercontent.com.json', SCOPES)
+            creds = flow.run_local_server(port = 0)
+        # Save the credentials for the next run
+        with open('auth_token.pickle', 'wb') as token:
+            pickle.dump(creds, token)
+    blog_service = build('blogger', 'v3', credentials = creds)
+    drive_service = build('drive', 'v3', credentials = creds)
+    return drive_service, blog_service
+
+# Function to get the blog information
+def get_blog_information(api_handler=None, blog_max_posts=3):
+    try:
+        if not api_handler:
+            return None
+        blogs = api_handler.blogs()
+        resp = blogs.get(blogId=BLOG_ID, maxPosts=blog_max_posts, view="ADMIN").execute()
+        for blog in resp['posts']['items']:
+            print ('The blog title: \'%s\' and url: %s' % (blog['title'],blog['url']))
+    except Exception as ex:
+        print(str(ex))
+
+# Function to upload photo onto Google drive
+def get_drive_information(api_handler,fileName):
+    try:
+        if not api_handler:
+            return None
+        file_metadata = {
+        'name': fileName,
+        'parents': ['1t2wesFIyraxtsA-X7-lWxrnEYnXCnnD6'],
+        'mimeType': 'image/png'
+        }
+        media = MediaFileUpload(fileName,
+                                mimetype='image/png',
+                                resumable=True)
+        file = api_handler.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        print ('File ID: ' + file.get('id'))
+        url = "http://drive.google.com/uc?export=view&id={}".format(file.get('id'))
+        print ('url: ' + url)
+        return url
+    except Exception as ex:
+        print(str(ex))
+
+
 def main():
     updater = Updater(token='', use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
@@ -111,7 +222,6 @@ def main():
     start_handler = CommandHandler('start', start)
     dispatcher.add_handler(start_handler,2)
 
-    ### TODO: MAKE SURE THAT THE CONVERSATIONS END BEFORE MAKING THE NEXT COMMAND ###
     write_handler = ConversationHandler(
         entry_points = [CommandHandler('write', write)],
         states = {
@@ -128,6 +238,7 @@ def main():
         entry_points = [CommandHandler('journal', journal)],
         states = {
             UPLOAD_PHOTO: [MessageHandler(Filters.photo, photo)],
+            INSERT_TITLE: [MessageHandler(Filters.text, title)],
             INSERT_CAPTION: [MessageHandler(Filters.text, caption)]
         },
         fallbacks = [MessageHandler(Filters.command, cancel)]
@@ -143,7 +254,7 @@ def main():
     # JOB QUEUE
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
-    job.run_daily(daily_encouragement, time = datetime.time(20,8,5,5))
+    job.run_daily(daily_encouragement, time = datetime.time(17,5,20,20))
     # print(job.jobs())
     # j = updater.job_queue
     # j.run_repeating(callback_minute, interval=5, first=0)
