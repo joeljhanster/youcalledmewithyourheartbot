@@ -4,6 +4,7 @@ import os
 import pickle
 import json
 from oauth2client import client
+from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -164,6 +165,8 @@ def check_commands(message):
 
 # Function to generate the blogger and drive service
 def get_blogger_service_obj():
+    # creds = ServiceAccountCredentials.from_json_keyfile_name(
+    #         'smooth-helper-272716-8f188c6d654b.json', scopes=SCOPES)
     creds = None
     if os.path.exists('auth_token.pickle'):
         with open('auth_token.pickle', 'rb') as token:
@@ -176,7 +179,8 @@ def get_blogger_service_obj():
             # creds = flow.run_local_server(port = 0)
             flow.run_console()
             creds = flow.credentials
-            print ("This is creds: {}".format(creds))
+            # creds = ServiceAccountCredentials.from_json_keyfile_name(
+            # 'smooth-helper-272716-8f188c6d654b.json', scopes=SCOPES)
         # Save the credentials for the next run
         with open('auth_token.pickle', 'wb') as token:
             pickle.dump(creds, token)
