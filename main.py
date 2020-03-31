@@ -78,7 +78,7 @@ def photo(update, context):
     filePath.append(fileName)
     # filePath.append(os.path.abspath(fileName))
 
-    # Prompt user to write a description of the photo
+    # Prompt user to insert a title for the photo
     update.message.reply_text("Insert a Title!!!")
     return INSERT_TITLE
 
@@ -114,12 +114,12 @@ def caption(update, context):
         }
     }
     
-    ### TODO: Clear the filePath and title_text list
-
+    ### TODO: Delete photo generated
+    del filePath[:]
+    del title_text[:]
     
     posts = blog_handler.posts()
-    res = posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
-    print(res)
+    posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
 
     update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
     return ConversationHandler.END
@@ -216,7 +216,7 @@ def get_drive_information(api_handler,fileName):
 
 
 def main():
-    updater = Updater(token='', use_context=True)   # INSERT TOKEN
+    updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
