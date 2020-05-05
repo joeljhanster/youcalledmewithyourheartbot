@@ -40,8 +40,9 @@ title_text = []
 filePath = []
 chatId = []
 
-def start(update, context):
+def start(update, context, job_queue):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello Presca! Welcome to a whole new journey with Joel :)")
+    job_queue.run_daily(daily_encouragement, time = datetime.time(13,15,00,00), days = (0,1,2,3,4,5,6), context = update)
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
@@ -224,7 +225,8 @@ def main():
     updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
 
-    start_handler = CommandHandler('start', start)
+    # start_handler = CommandHandler('start', start)
+    start_handler = CommandHandler('start', start, pass_job_queue=True)
     dispatcher.add_handler(start_handler,2)
 
     write_handler = ConversationHandler(
@@ -259,7 +261,7 @@ def main():
     # JOB QUEUE
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
-    job.run_daily(daily_encouragement, time = datetime.time(13,30,00,00))
+    # job.run_daily(daily_encouragement, time = datetime.time(13,15,00,00))
     # print(job.jobs())
     # j = updater.job_queue
     job.run_repeating(callback_minute, interval=3600, first=0)
