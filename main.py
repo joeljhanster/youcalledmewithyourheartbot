@@ -286,6 +286,7 @@ def main():
     job = updater.job_queue
     # time_scheduled = datetime.time(6,22,5,5)
     local_tz = pytz.timezone('Asia/Singapore')
+    datetime.datetime.utcnow().replace(tzinfo=pytz.utc).astimezone(local_tz)
     job.run_repeating(timecheck, interval=10, first=0)
     # job.run_repeating(daily_encouragement, interval=5, first=datetime.time(6,32,5,5,tzinfo=local_tz)) # GST+8: 17:5
 
