@@ -45,14 +45,16 @@ filePath = []
 chatId = []
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hello Presca! Welcome to a whole new journey with Joel :)")
+    welcome_message = emojize("Hello Presca! Welcome to a whole new journey with Joel :blush::blush::blush:", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
     context.bot.send_message(chat_id=tele_id, text="{} said YES!".format(update.message.from_user.first_name))
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
 # WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
 def write(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Surprise your lover with a word of encouragement! <3")
+    message = emojize("Surprise your lover with a word of encouragement! :heart:", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
     return WRITE_WORD
 
 def word(update, context):
@@ -62,16 +64,20 @@ def word(update, context):
 
     for id in chatId:
         if id != update.effective_chat.id:
-            context.bot.send_message(chat_id=id, text="Your partner has a word of encouragement for you! Remember to show your appreciation!")
+            received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
+            context.bot.send_message(chat_id=id, text=received_message)
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
-            context.bot.send_message(chat_id=id, text="Your partner should have received your word of encouragement!")
+            context.bot.send_message(chat_id=id, text=update.message.text) # testing
+            sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
+            context.bot.send_message(chat_id=id, text=sent_message)
     return ConversationHandler.END
 
 # JOURNAL: STORE OUR FAVOURITE PHOTOS AND CAPTION IT! LET'S KEEP OUR MEMORIES!
 def journal(update, context):
     # Prompt user to upload a picture
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Have a memory that you wish to add to the journal? First upload a photo!")
+    message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
     return UPLOAD_PHOTO
 
 def photo(update, context):
@@ -85,7 +91,8 @@ def photo(update, context):
     # filePath.append(os.path.abspath(fileName))
 
     # Prompt user to insert a title for the photo
-    update.message.reply_text("Insert a Title!!!")
+    message = emojize("Insert a Title!!! :sparkles:", use_aliases=True)
+    update.message.reply_text(message)
     return INSERT_TITLE
 
 def title(update, context):
@@ -93,10 +100,11 @@ def title(update, context):
     if boolean:
         return cancel(update, context)
     
-    title_text.append(str(update.message.text))
+    title_text.append(emojize(update.message.text, use_aliases=True))
 
     # Prompt user to write a description of the photo
-    update.message.reply_text("Now write a story about this photo! <3")
+    message = emojize("Now write a story about this photo! :black_nib:", use_aliases=True)
+    update.message.reply_text(message)
     return INSERT_CAPTION
 
 def caption(update, context):
@@ -105,13 +113,14 @@ def caption(update, context):
         return cancel(update, context)
 
     # Record the description of the photo and store it into the blog
-    message = update.message.text
+    message = emojize(update.message.text, use_aliases=True)
     print (message)
 
     drive_handler, blog_handler = get_blogger_service_obj()
     url = get_drive_information(drive_handler,filePath[-1])
     get_blog_information(blog_handler)
 
+    ### TODO: Allow blog post to post emojis
     data = {
         "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
         "title": title_text[-1],
@@ -127,16 +136,13 @@ def caption(update, context):
     try:
         posts = blog_handler.posts()
         posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
-
-        update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
+        update_message = emojize("The blog has been updated! :heart_eyes::heart_eyes::heart_eyes:\nType /viewjournal to take a look! :fire:", use_aliases=True)
+        update.message.reply_text(update_message)
     except Exception as ex:
         print(str(ex))
-        update.message.reply_text("Failed to upload post!\nSome things just don't go according to plan but keep trying!")
+        failed_message = emojize("Failed to upload post! :disappointed_relieved:\nSome things just don't go according to plan but keep trying! :clap:", use_aliases=True)
+        update.message.reply_text(failed_message)
 
-    # posts = blog_handler.posts()
-    # posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
-
-    # update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
     return ConversationHandler.END
 
 def cancel(update, context):
@@ -147,7 +153,8 @@ def cancel(update, context):
 # VIEWJOURNAL: LET'S VISIT MEMORY LANE!
 def viewjournal(update, context):
     # Opens up the blogger website for browsing
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/")
+    message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 def daily_encouragement(context):
     timedelta = datetime.date.today() - day0
@@ -156,12 +163,13 @@ def daily_encouragement(context):
     print ("Every daily interval")
     
     for id in chatId:
-        context.bot.send_message(chat_id=id, text="Day {}: I love you".format(diff_days))
+        context.bot.send_message(chat_id=id, text="Day {}: I love you!".format(diff_days))
 
 def unknown(update, context):
-    message = str(update.message.text)
+    message = emojize(update.message.text, use_aliases=True)
     if message not in commands:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="You are loved! Maybe you want to type another command? :)")
+        message = emojize("You are loved! Maybe you want to type another command? :smile:", use_aliases=True)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 ### TODO: REMOVE THIS FUNCTION ###
 def callback_minute(context):
@@ -173,7 +181,8 @@ def callback_minute(context):
 
 # Function to check if message starts with "/"
 def check_commands(message):
-    message = str(message)
+    # message = str(message)
+    message = emojize(message, use_aliases=True)
     if (message[0] == '/'):
         logger.info('Message starts with "/"')
         return True
@@ -277,7 +286,7 @@ def main():
     # job.run_daily(daily_encouragement, time = datetime.time(14,15,00,00))
     # print(job.jobs())
     # j = updater.job_queue
-    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(7,30,00,00)) # GST+8
+    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(9,5,5,5)) # GST+8: 17:5
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
