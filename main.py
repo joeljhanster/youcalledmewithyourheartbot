@@ -14,6 +14,7 @@ from apiclient.http import MediaFileUpload
 from emoji import emojize
 
 import datetime
+import pytz
 from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
 from telegram import InlineQueryResultArticle, InputTextMessageContent, bot
 import logging
@@ -120,20 +121,20 @@ def caption(update, context):
     url = get_drive_information(drive_handler,filePath[-1])
     get_blog_information(blog_handler)
 
-    ### TODO: Allow blog post to post emojis
-    data = {
-        "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
-        "title": title_text[-1],
-        "blog": {
-            "id": BLOG_ID
-        }
-    }
-    
-    ### TODO: Delete photo generated
-    del filePath[:]
-    del title_text[:]
-    
     try:
+        ### TODO: Allow blog post to post emojis
+        data = {
+            "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
+            "title": title_text[-1],
+            "blog": {
+                "id": BLOG_ID
+            }
+        }
+        
+        ### TODO: Delete photo generated
+        del filePath[:]
+        del title_text[:]
+
         posts = blog_handler.posts()
         posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
         update_message = emojize("The blog has been updated! :heart_eyes::heart_eyes::heart_eyes:\nType /viewjournal to take a look! :fire:", use_aliases=True)
@@ -172,7 +173,7 @@ def unknown(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 ### TODO: REMOVE THIS FUNCTION ###
-def callback_minute(context):
+def timecheck(context):
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print ("Every callback interval")
@@ -283,11 +284,10 @@ def main():
     # JOB QUEUE
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
-    # job.run_daily(daily_encouragement, time = datetime.time(14,15,00,00))
-    # print(job.jobs())
-    # j = updater.job_queue
-    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(9,5,5,5)) # GST+8: 17:5
-    # print(j.jobs())
+    # time_scheduled = datetime.time(6,22,5,5)
+    local_tz = pytz.timezone('Asia/Singapore')
+    job.run_repeating(timecheck, interval=10, first=0)
+    # job.run_repeating(daily_encouragement, interval=5, first=datetime.time(6,32,5,5,tzinfo=local_tz)) # GST+8: 17:5
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
     print("Starting telegram bot")
