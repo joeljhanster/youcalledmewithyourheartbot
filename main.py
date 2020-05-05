@@ -139,6 +139,8 @@ def daily_encouragement(context):
     timedelta = datetime.date.today() - day0
     diff_days = timedelta.days
     ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
+    print ("Every daily interval")
+    
     for id in chatId:
         context.bot.send_message(chat_id=id, text="Day {}: I love you".format(diff_days))
 
@@ -151,6 +153,7 @@ def unknown(update, context):
 def callback_minute(context):
     now = datetime.datetime.now()
     current_time = now.strftime("%H:%M:%S")
+    print ("Every callback interval")
     for id in chatId:
         context.bot.send_message(chat_id=id, text="Time now is: {}".format(current_time))
 
@@ -256,10 +259,10 @@ def main():
     # JOB QUEUE
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
-    job.run_daily(daily_encouragement, time = datetime.time(17,5,20,20))
+    job.run_daily(daily_encouragement, time = datetime.time(13,30,00,00))
     # print(job.jobs())
     # j = updater.job_queue
-    job.run_repeating(callback_minute, interval=600, first=0)
+    job.run_repeating(callback_minute, interval=3600, first=0)
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
