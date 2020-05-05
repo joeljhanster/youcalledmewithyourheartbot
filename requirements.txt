@@ -9,6 +9,7 @@ cffi==1.12.3
 chardet==3.0.4
 cryptography==2.6.1
 decorator==4.4.2
+emoji==0.5.4
 enum34==1.1.6
 future==0.18.2
 google-api-core==1.16.0
