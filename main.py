@@ -11,6 +11,7 @@ from google.auth.transport.requests import Request
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from apiclient.http import MediaFileUpload
+from emoji import emojize
 
 import datetime
 from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
@@ -123,15 +124,24 @@ def caption(update, context):
     del filePath[:]
     del title_text[:]
     
-    posts = blog_handler.posts()
-    posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
+    try:
+        posts = blog_handler.posts()
+        posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
 
-    update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
+        update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
+    except Exception as ex:
+        print(str(ex))
+        update.message.reply_text("Failed to upload post!\nSome things just don't go according to plan but keep trying!")
+
+    # posts = blog_handler.posts()
+    # posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
+
+    # update.message.reply_text("The blog has been updated!\nType /viewjournal to take a look!")
     return ConversationHandler.END
 
 def cancel(update, context):
     user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
+    logger.info("User %s cancelled the conversation.", user.first_name)
     return ConversationHandler.END
 
 # VIEWJOURNAL: LET'S VISIT MEMORY LANE!
@@ -175,7 +185,8 @@ def get_blogger_service_obj():
     creds = None
     if os.path.exists('auth_token.pickle'):
         with open('auth_token.pickle', 'rb') as token:
-            creds = pickle.load(token, encoding='latin1')
+            # creds = pickle.load(token, encoding='latin1')
+            creds = pickle.load(token)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -266,7 +277,7 @@ def main():
     # job.run_daily(daily_encouragement, time = datetime.time(14,15,00,00))
     # print(job.jobs())
     # j = updater.job_queue
-    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(6,45,00,00)) # GST+8
+    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(7,30,00,00)) # GST+8
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
