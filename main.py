@@ -45,6 +45,7 @@ title_text = []
 filePath = []
 chatId = []
 
+# START: SHE SAID YES!
 def start(update, context):
     welcome_message = emojize("Hello Presca! Welcome to a whole new journey with Joel :blush::blush::blush:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
@@ -158,7 +159,10 @@ def viewjournal(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 def daily_encouragement(context):
-    timedelta = datetime.date.today() - day0
+    # timedelta = datetime.date.today() - day0
+    timedelta = convert_utc() - day0
+    print (datetime.date.today())
+    print(timedelta)
     diff_days = timedelta.days
     ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
     print ("Every daily interval")
@@ -166,6 +170,7 @@ def daily_encouragement(context):
     for id in chatId:
         context.bot.send_message(chat_id=id, text="Day {}: I love you!".format(diff_days))
 
+# INVALID COMMAND
 def unknown(update, context):
     message = emojize(update.message.text, use_aliases=True)
     if message not in commands:
@@ -244,29 +249,28 @@ def get_drive_information(api_handler,fileName):
     except Exception as ex:
         print(str(ex))
 
-
-def convert_utc(date_time):
+def convert_utc():
     local_tz = pytz.timezone('Asia/Singapore')
-    # my_time = datetime.datetime.utcnow()
-    my_time = date_time.replace(tzinfo=pytz.utc)
-    return my_time.astimezone(local_tz)
+    my_time = datetime.datetime.utcnow()
+    my_time = my_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    return datetime.date(my_time.year, my_time.month, my_time.day)
 
-def convert_utc_time(time):
-    date_today = datetime.datetime.utcnow()
-    year = date_today.year
-    month = date_today.month
-    day = date_today.day
+# def convert_utc_time(time):
+#     date_today = datetime.datetime.utcnow()
+#     year = date_today.year
+#     month = date_today.month
+#     day = date_today.day
 
-    # e.g. time = datetime.time(17,5,5,5)
-    hour = time.hour
-    minute = time.minute
-    second = time.second
-    microsecond = time.microsecond
+#     # e.g. time = datetime.time(17,5,5,5)
+#     hour = time.hour
+#     minute = time.minute
+#     second = time.second
+#     microsecond = time.microsecond
 
-    old_datetime = datetime.datetime(year,month,day,hour,minute,second,microsecond)
-    new_datetime = convert_utc(old_datetime)
+#     old_datetime = datetime.datetime(year,month,day,hour,minute,second,microsecond)
+#     new_datetime = convert_utc(old_datetime)
 
-    return datetime.time(new_datetime.hour, new_datetime.minute, new_datetime.second, new_datetime.microsecond)
+#     return datetime.time(new_datetime.hour, new_datetime.minute, new_datetime.second, new_datetime.microsecond)
 
 def main():
     updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
@@ -308,12 +312,11 @@ def main():
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
 
-    print(convert_utc(datetime.datetime(1997,4,17,6,50,5,5)))
+    # print(convert_utc(datetime.datetime(1997,4,17,6,50,5,5)))
     # print(convert_utc_time(datetime.time(6,32,5,5)))
 
-    job.run_repeating(timecheck, interval=10, first=0)
-    job.run_repeating(daily_encouragement, interval=5, first=convert_utc_time(datetime.time(7,19,5,5))) # GST+8: 17:5
-    # job.run_repeating(daily_encouragement, interval=5, first=convert_utc_time(datetime.time(15,12,5,5))) # GST+8: 17:5
+    job.run_repeating(daily_encouragement, interval=10, first=0) # GST+8: 17:5:17:5
+    # job.run_repeating(daily_encouragement, interval=86400, first=datetime.time(9,5,17,5))) # GST+8: 17:5:17:5
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
     print("Starting telegram bot")
