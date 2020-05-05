@@ -42,7 +42,7 @@ chatId = []
 
 def start(update, context, job_queue):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello Presca! Welcome to a whole new journey with Joel :)")
-    job_queue.run_daily(daily_encouragement, time = datetime.time(13,15,00,00), days = (0,1,2,3,4,5,6), context = update)
+    job_queue.run_daily(daily_encouragement, time = datetime.time(14,5,00,00), days = (0,1,2,3,4,5,6), context = update)
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
