@@ -165,8 +165,6 @@ def check_commands(message):
 
 # Function to generate the blogger and drive service
 def get_blogger_service_obj():
-    # creds = ServiceAccountCredentials.from_json_keyfile_name(
-    #         'smooth-helper-272716-8f188c6d654b.json', scopes=SCOPES)
     creds = None
     if os.path.exists('auth_token.pickle'):
         with open('auth_token.pickle', 'rb') as token:
@@ -176,11 +174,8 @@ def get_blogger_service_obj():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file('client_secret_1044751721266-cbvnnlkrfuuogp35but2hon3ia31ld33.apps.googleusercontent.com.json', SCOPES)
-            # creds = flow.run_local_server(port = 0)
             flow.run_console()
             creds = flow.credentials
-            # creds = ServiceAccountCredentials.from_json_keyfile_name(
-            # 'smooth-helper-272716-8f188c6d654b.json', scopes=SCOPES)
         # Save the credentials for the next run
         with open('auth_token.pickle', 'wb') as token:
             pickle.dump(creds, token)
@@ -264,7 +259,7 @@ def main():
     job.run_daily(daily_encouragement, time = datetime.time(17,5,20,20))
     # print(job.jobs())
     # j = updater.job_queue
-    # j.run_repeating(callback_minute, interval=5, first=0)
+    j.run_repeating(callback_minute, interval=120, first=0)
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
