@@ -170,7 +170,7 @@ def get_blogger_service_obj():
     creds = None
     if os.path.exists('auth_token.pickle'):
         with open('auth_token.pickle', 'rb') as token:
-            creds = pickle.load(token)
+            creds = pickle.load(token, encoding='latin1')
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
