@@ -45,7 +45,7 @@ chatId = []
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello Presca! Welcome to a whole new journey with Joel :)")
-    context.bot.send_message(chat_id=tele_id, text="{} joined the bot!".format(update.effective_chat.id))
+    context.bot.send_message(chat_id=tele_id, text="{} said YES!".format(update.message.from_user.first_name))
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
@@ -266,7 +266,7 @@ def main():
     # job.run_daily(daily_encouragement, time = datetime.time(14,15,00,00))
     # print(job.jobs())
     # j = updater.job_queue
-    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(14,15,00,00))
+    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(6,45,00,00)) # GST+8
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
