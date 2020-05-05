@@ -262,7 +262,7 @@ def main():
     # job.run_daily(daily_encouragement, time = datetime.time(14,15,00,00))
     # print(job.jobs())
     # j = updater.job_queue
-    job.run_repeating(daily_encouragement, interval=3600, first=0)
+    job.run_repeating(daily_encouragement, interval=3600, first=datetime.time(14,15,00,00))
     # print(j.jobs())
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
