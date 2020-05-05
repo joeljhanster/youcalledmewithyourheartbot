@@ -31,6 +31,9 @@ commands = ['/start', '/write', '/journal', '/viewjournal']
 BLOG_ID = "4868757922382507011"
 SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com/auth/drive.file']
 
+# Telegram ID
+tele_id = "41459978"
+
 # Special Dates
 day0 = datetime.date(2020,5,17)
 p_bday = datetime.date(1999,2,25)
@@ -42,6 +45,7 @@ chatId = []
 
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hello Presca! Welcome to a whole new journey with Joel :)")
+    context.bot.send_message(chat_id=tele_id, text="{} joined the bot!".format(update.effective_chat.id))
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
