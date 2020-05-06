@@ -240,7 +240,7 @@ def select_encouragement(document, diff_days):
     used_sentence = random.choice(sentence_lst)
     used.append(used_sentence)
     sentence_lst.remove(used_sentence)
-    header = emojize("Together for {} days :two_hearts:\n\nMOTIVATION OF THE DAY\n".format(diff_days), use_aliases=True)
+    header = emojize("TOGETHER FOR {} DAYS :two_hearts:\n\n".format(diff_days), use_aliases=True)
     header += used_sentence
     # header = header.encode('utf-8')   ### uncomment for Python 2
     return header    # converts unicode to string
@@ -440,7 +440,7 @@ def main():
     job = updater.job_queue
 
     # TESTING
-    job.run_repeating(daily_encouragement, interval=5, first=0) # Daily Encouragments
+    job.run_repeating(daily_encouragement, interval=43200, first=60) # Daily Encouragments
     # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
 
