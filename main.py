@@ -126,8 +126,14 @@ def caption(update, context):
 
     # Record the description of the photo and store it into the blog
     message = emojize(update.message.text, use_aliases=True)
-    message = message.encode('utf-8')   
+    # message = message.encode('utf-8') 
+    hello = message.encode('utf-8')
+    print(type(hello))  
     print(message)
+    print(type(message))
+    bye = hello.encode('utf-8')
+    print(bye)
+    print(type(bye))
 
     drive_handler, blog_handler = get_blogger_service_obj()
     url = get_drive_information(drive_handler,filePath[-1])
