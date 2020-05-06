@@ -242,8 +242,8 @@ def select_encouragement(document, diff_days):
     sentence_lst.remove(used_sentence)
     header = emojize("Together for {} days :two_hearts:\n\n".format(diff_days), use_aliases=True)
     header += used_sentence
-
-    return header.encode('utf-8')    # converts unicode to string
+    # header = header.encode('utf-8')   ### uncomment for Python 2
+    return header    # converts unicode to string
 
 def special_day(context):
     today = convert_utc()
