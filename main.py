@@ -126,14 +126,7 @@ def caption(update, context):
 
     # Record the description of the photo and store it into the blog
     message = emojize(update.message.text, use_aliases=True)
-    # message = message.encode('utf-8') 
-    hello = message.encode('utf-8')
-    print(type(hello))  
-    print(message)
-    print(type(message))
-    bye = hello.decode('utf-8')
-    print(bye)
-    print(type(bye))
+    # message = message.encode('utf-8')             # Remove for Python 2
 
     drive_handler, blog_handler = get_blogger_service_obj()
     url = get_drive_information(drive_handler,filePath[-1])
@@ -193,7 +186,7 @@ def generate_date(update, context):
 
     try:
         for id in chatId:
-            date_message = emojize("{0} wants to go on an {1}\n\n{2}".format(update.message.from_user.first_name, message, idea))
+            date_message = emojize("{0} wants to go {1}\n\n{2}".format(update.message.from_user.first_name, message, idea))
             context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
             return ConversationHandler.END
     except Exception as ex:
@@ -447,7 +440,7 @@ def main():
     job = updater.job_queue
 
     # TESTING
-    # job.run_repeating(daily_encouragement, interval=5, first=0) # Daily Encouragments
+    job.run_repeating(daily_encouragement, interval=5, first=0) # Daily Encouragments
     # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
 
