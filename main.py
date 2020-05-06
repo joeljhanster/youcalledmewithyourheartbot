@@ -131,7 +131,7 @@ def caption(update, context):
     print(type(hello))  
     print(message)
     print(type(message))
-    bye = hello.encode('utf-8')
+    bye = hello.decode('utf-8')
     print(bye)
     print(type(bye))
 
