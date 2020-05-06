@@ -8,47 +8,58 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+# from pydrive.auth import GoogleAuth
+# from pydrive.drive import GoogleDrive
 from apiclient.http import MediaFileUpload
-from emoji import emojize
+from emoji import emojize, demojize
+import random
+import copy
 
 import datetime
 import pytz
 from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
-from telegram import InlineQueryResultArticle, InputTextMessageContent, bot
+from telegram import InlineQueryResultArticle, InputTextMessageContent, bot, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 import logging
 
 # Enable logging
+# logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+#                      level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
+                     level=logging.ERROR)
 
-logging.getLogger('googleapicliet.discovery_cache').setLevel(logging.ERROR)
+# logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
-WRITE_WORD, UPLOAD_PHOTO, INSERT_TITLE, INSERT_CAPTION = range(4)
-commands = ['/start', '/write', '/journal', '/viewjournal']
+WRITE_WORD, UPLOAD_PHOTO, INSERT_TITLE, INSERT_CAPTION, SELECT_DATE = range(5)
+commands = ['/start', '/write', '/journal', '/viewjournal', '/date']
 
 # Blogger
 BLOG_ID = "4868757922382507011"
-SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com/auth/drive.file']
+SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/documents.readonly']
+
+# Google Docs
+ENCOURAGEMENT_DOCUMENT_ID = '1X7_sLXuItIkqqVcNGxIUee1Jr6PH-tUbuJRpHNyrgeg'    # Daily Encouragement
 
 # Telegram ID
 tele_id = "41459978"
 
 # Special Dates
-day0 = datetime.date(2020,5,17)
-p_bday = datetime.date(1999,2,25)
-j_bday = datetime.date(1997,4,17)
+day0 = datetime.date(2020,5,17)     # Anniversary
+p_bday = datetime.date(1999,2,25)   # Sca's birthday
+j_bday = datetime.date(1997,4,17)   # Han's birthday
+v_day = datetime.date(2021,2,14)    # 1st Valentine's Day
+
+today_testing = datetime.date(2020,5,6)  # Testing Day
 
 title_text = []
 filePath = []
-chatId = []
+chatId = []             # Get Presca's tele Id and append to this list
+used = []               # Used list for encouragements
 
 # START: SHE SAID YES!
 def start(update, context):
-    welcome_message = emojize("Hello Presca! Welcome to a whole new journey with Joel :blush::blush::blush:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
+    welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
     context.bot.send_message(chat_id=tele_id, text="{} said YES!".format(update.message.from_user.first_name))
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
@@ -56,7 +67,7 @@ def start(update, context):
 # WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
 def write(update, context):
     message = emojize("Surprise your lover with a word of encouragement! :heart:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
     return WRITE_WORD
 
 def word(update, context):
@@ -70,7 +81,7 @@ def word(update, context):
             context.bot.send_message(chat_id=id, text=received_message)
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
-            context.bot.send_message(chat_id=id, text=update.message.text) # testing
+            context.bot.send_message(chat_id=tele_id, text=update.message.text) # testing
             sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=sent_message)
     return ConversationHandler.END
@@ -79,7 +90,7 @@ def word(update, context):
 def journal(update, context):
     # Prompt user to upload a picture
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
     return UPLOAD_PHOTO
 
 def photo(update, context):
@@ -90,7 +101,6 @@ def photo(update, context):
     photo_file = update.message.photo[-1].get_file()
     photo_file.download(fileName)
     filePath.append(fileName)
-    # filePath.append(os.path.abspath(fileName))
 
     # Prompt user to insert a title for the photo
     message = emojize("Insert a Title!!! :sparkles:", use_aliases=True)
@@ -116,14 +126,13 @@ def caption(update, context):
 
     # Record the description of the photo and store it into the blog
     message = emojize(update.message.text, use_aliases=True)
-    print (message)
+    message = message.encode('utf-8')   
 
     drive_handler, blog_handler = get_blogger_service_obj()
     url = get_drive_information(drive_handler,filePath[-1])
     get_blog_information(blog_handler)
 
     try:
-        ### TODO: Allow blog post to post emojis
         data = {
             "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
             "title": title_text[-1],
@@ -132,7 +141,7 @@ def caption(update, context):
             }
         }
         
-        ### TODO: Delete photo generated
+        ### TODO: Delete photo generated after storing into Google Drive
         del filePath[:]
         del title_text[:]
 
@@ -147,28 +156,140 @@ def caption(update, context):
 
     return ConversationHandler.END
 
+# VIEWJOURNAL: LET'S VISIT MEMORY LANE!
+def viewjournal(update, context):
+    # Opens up the blogger website for browsing
+    message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+
+# DATE: MAKE DATING FUN WITH WILD IDEAS!
+def date(update, context):
+    ### TODO: Show different options for each category of dating ideas ###
+    message = emojize("Select the category!", use_aliases=True)
+    adventure_keyboard = KeyboardButton(text="Adventure")
+    overseas_keyboard = KeyboardButton(text="Overseas")
+    custom_keyboard = [[adventure_keyboard], [overseas_keyboard]]
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardMarkup(custom_keyboard, one_time_keyboard=True))
+    return SELECT_DATE
+
+def generate_date(update, context):
+    boolean = check_commands(update.message.text)
+    if boolean:
+        return cancel(update, context)
+
+    ### TODO: Reply with a random idea message based on the category chosen ###
+    message = emojize(update.message.text, use_aliases=True)
+    if message == "Adventure":
+        idea = "Skuba Diving!!!"
+    elif message == "Overseas":
+        idea = "Phuket!"
+
+    try:
+        for id in chatId:
+            date_message = emojize("{0} wants to go on an {1}\n\n{2}".format(update.message.from_user.first_name, message, idea))
+            context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
+            return ConversationHandler.END
+    except Exception as ex:
+        error_message = emojize("Select one of the options below!", use_aliases=True)
+
+        context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
+
 def cancel(update, context):
     user = update.message.from_user
     logger.info("User %s cancelled the conversation.", user.first_name)
     return ConversationHandler.END
 
-# VIEWJOURNAL: LET'S VISIT MEMORY LANE!
-def viewjournal(update, context):
-    # Opens up the blogger website for browsing
-    message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
 def daily_encouragement(context):
-    # timedelta = datetime.date.today() - day0
-    timedelta = convert_utc() - day0
-    print (datetime.date.today())
-    print(timedelta)
+    today = convert_utc()
+    timedelta = today - day0
     diff_days = timedelta.days
     ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
     print ("Every daily interval")
-    
+    service = get_docs_service_obj()
+    document = service.documents().get(documentId=ENCOURAGEMENT_DOCUMENT_ID).execute()
+    message = select_encouragement(document, diff_days)
+
     for id in chatId:
-        context.bot.send_message(chat_id=id, text="Day {}: I love you!".format(diff_days))
+        context.bot.send_message(chat_id=id, text=message)
+
+def select_encouragement(document, diff_days):
+    content = document.get('body').get('content')
+    num_lines = len(content)
+    count = 0   # count number of line breaks
+    sentence = ""
+    sentence_lst = []
+
+    # Store unused encouragements into sentence_lst
+    for i in range(1,num_lines):
+        message = content[i].get('paragraph').get('elements')[0].get('textRun').get('content')
+        if message == '\n':
+            if (sentence not in used and sentence != ""):
+                sentence_lst.append(sentence)
+            sentence = ""
+        else:
+            sentence += message
+            if i == num_lines-1:    # check if last line
+                sentence_lst.append(sentence)
+                sentence = ""
+    
+    # If all the encouragements are used, reset
+    if (len(sentence_lst) == 0):
+        sentence_lst = copy.copy(used)
+        del used[:]
+
+    used_sentence = random.choice(sentence_lst)
+    used.append(used_sentence)
+    sentence_lst.remove(used_sentence)
+    header = emojize("Together for {} days :two_hearts:\n\n".format(diff_days), use_aliases=True)
+    header += used_sentence
+
+    return header.encode('utf-8')    # converts unicode to string
+
+def special_day(context):
+    today = convert_utc()
+    today_year, today_month, today_day = special_date(today)
+    anni_year, anni_month, anni_day = special_date(day0)        # Anniversary
+    pday_year, pday_month, pday_day = special_date(p_bday)      # Sca's birthday
+    jday_year, jday_month, jday_day = special_date(j_bday)      # Han's birthday
+    vday_year, vday_month, vday_day = special_date(v_day)       # Valentine's Day
+
+    test_year, test_month, test_day = special_date(today_testing)
+
+    print("Checking for special day")
+
+    if (today_month, today_year) == (anni_month, anni_day):
+        message = emojize("It is our anniversary! :smile:", use_aliases=True)
+
+    elif (today_month, today_day) == (pday_month, pday_day):
+        message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)
+
+    elif (today_month, today_day) == (jday_month, jday_day):
+        message = emojize("It is Han's Birthday! :smile:", use_aliases=True)
+
+    elif (today_month, today_day) == (vday_month, vday_day):
+        message = emojize("It is Valentine's Day! :smile:", use_aliases=True)
+
+    elif (today_month, today_day) == (test_month, test_day):
+        message = emojize("I AM ONLY TESTING! :smile:", use_aliases=True)
+        # message = emojize("It is our anniversary! :smile:", use_aliases=True)   # Testing anniversary message
+        # message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)    # Testing Sca's birthday message
+        # message = emojize("It is Han's Birthday! :smile:", use_aliases=True)    # Testing Han's birthday message
+        # message = emojize("It is Valentine's Day! :smile:", use_aliases=True)   # Testing Valentine's Day message
+
+    else:
+        message = ""
+        print("Everyday is a special day")
+
+    if message != "":
+        for id in chatId:
+            context.bot.send_message(chat_id=id, text=message)
+
+def special_date(date):
+    year = date.year
+    month = date.month
+    day = date.day
+    
+    return year, month, day
 
 # INVALID COMMAND
 def unknown(update, context):
@@ -177,17 +298,8 @@ def unknown(update, context):
         message = emojize("You are loved! Maybe you want to type another command? :smile:", use_aliases=True)
         context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
-### TODO: REMOVE THIS FUNCTION ###
-def timecheck(context):
-    now = datetime.datetime.now()
-    current_time = convert_utc(now).strftime("%H:%M:%S")
-    print ("Every callback interval")
-    for id in chatId:
-        context.bot.send_message(chat_id=id, text="Time now is: {}".format(current_time))
-
 # Function to check if message starts with "/"
 def check_commands(message):
-    # message = str(message)
     message = emojize(message, use_aliases=True)
     if (message[0] == '/'):
         logger.info('Message starts with "/"')
@@ -195,8 +307,8 @@ def check_commands(message):
     else:
         return False
 
-# Function to generate the blogger and drive service
-def get_blogger_service_obj():
+# Function to get credentials
+def get_credentials():
     creds = None
     if os.path.exists('auth_token.pickle'):
         with open('auth_token.pickle', 'rb') as token:
@@ -212,9 +324,19 @@ def get_blogger_service_obj():
         # Save the credentials for the next run
         with open('auth_token.pickle', 'wb') as token:
             pickle.dump(creds, token)
+    return creds
+
+# Function to generate the blogger and drive service
+def get_blogger_service_obj():
+    creds = get_credentials()
     blog_service = build('blogger', 'v3', credentials = creds)
     drive_service = build('drive', 'v3', credentials = creds)
     return drive_service, blog_service
+
+def get_docs_service_obj():
+    creds = get_credentials()
+    docs_service = build('docs', 'v1', credentials = creds)
+    return docs_service
 
 # Function to get the blog information
 def get_blog_information(api_handler=None, blog_max_posts=3):
@@ -249,28 +371,19 @@ def get_drive_information(api_handler,fileName):
     except Exception as ex:
         print(str(ex))
 
+# Function to convert utc time to local Singapore time (datetime.datetime -> datetime.date)
 def convert_utc():
     local_tz = pytz.timezone('Asia/Singapore')
     my_time = datetime.datetime.utcnow()
     my_time = my_time.replace(tzinfo=pytz.utc).astimezone(local_tz)
     return datetime.date(my_time.year, my_time.month, my_time.day)
 
-# def convert_utc_time(time):
-#     date_today = datetime.datetime.utcnow()
-#     year = date_today.year
-#     month = date_today.month
-#     day = date_today.day
-
-#     # e.g. time = datetime.time(17,5,5,5)
-#     hour = time.hour
-#     minute = time.minute
-#     second = time.second
-#     microsecond = time.microsecond
-
-#     old_datetime = datetime.datetime(year,month,day,hour,minute,second,microsecond)
-#     new_datetime = convert_utc(old_datetime)
-
-#     return datetime.time(new_datetime.hour, new_datetime.minute, new_datetime.second, new_datetime.microsecond)
+# Function to convert utc time to local Singapore time (datetime.time)
+def convert_time(time):
+    new_hour = time.hour-8  # Asia/Singapore (GMT +8)
+    if (new_hour < 0):
+        new_hour = 24 + new_hour
+    return time.replace(hour=new_hour)
 
 def main():
     updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
@@ -287,7 +400,8 @@ def main():
         fallbacks = [CommandHandler('start', cancel),
                     CommandHandler('write', cancel),
                     CommandHandler('journal', cancel),
-                    CommandHandler('viewjournal', cancel)]
+                    CommandHandler('viewjournal', cancel),
+                    CommandHandler('date', cancel)]
     )
     dispatcher.add_handler(write_handler,1)
 
@@ -305,6 +419,19 @@ def main():
     viewjournal_handler = CommandHandler('viewjournal', viewjournal)
     dispatcher.add_handler(viewjournal_handler,2)
 
+    date_handler = ConversationHandler(
+        entry_points = [CommandHandler('date', date)],
+        states = {
+            SELECT_DATE: [MessageHandler(Filters.text, generate_date)]
+        },
+        fallbacks = [CommandHandler('start', cancel),
+                    CommandHandler('write', cancel),
+                    CommandHandler('journal', cancel),
+                    CommandHandler('viewjournal', cancel),
+                    CommandHandler('date', cancel)]
+    )
+    dispatcher.add_handler(date_handler,2)
+
     unknown_handler = MessageHandler(Filters.command, unknown)
     dispatcher.add_handler(unknown_handler,3)
 
@@ -312,11 +439,14 @@ def main():
     ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
 
-    # print(convert_utc(datetime.datetime(1997,4,17,6,50,5,5)))
-    # print(convert_utc_time(datetime.time(6,32,5,5)))
+    # TESTING
+    # job.run_repeating(daily_encouragement, interval=5, first=0) # Daily Encouragments
+    # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
-    job.run_repeating(daily_encouragement, interval=10, first=0) # GST+8: 17:5:17:5
-    # job.run_repeating(daily_encouragement, interval=86400, first=datetime.time(9,5,17,5))) # GST+8: 17:5:17:5
+
+    # ACTUAL
+    job.run_repeating(daily_encouragement, interval=86400, first=convert_time(datetime.time(17,5,17,5))) # Daily Encouragments
+    job.run_repeating(special_day, interval=86400, first=convert_time(datetime.time(0,0,0,0))) # Check if it is a special day
 
     ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
     print("Starting telegram bot")
