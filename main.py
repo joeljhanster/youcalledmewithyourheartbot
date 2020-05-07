@@ -176,8 +176,10 @@ def date(update, context):
     ### TODO: Show different options for each category of dating ideas ###
     message = emojize("Select the category!", use_aliases=True)
     adventure_keyboard = KeyboardButton(text="Adventure")
+    chill_keyboard = KeyboardButton(text="Chill")
+    movie_keyboard = KeyboardButton(text="Movie")
     overseas_keyboard = KeyboardButton(text="Overseas")
-    custom_keyboard = [[adventure_keyboard], [overseas_keyboard]]
+    custom_keyboard = [[adventure_keyboard, chill_keyboard], [movie_keyboard, overseas_keyboard]]
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardMarkup(custom_keyboard, one_time_keyboard=True))
     return SELECT_DATE
 
@@ -189,13 +191,18 @@ def generate_date(update, context):
     ### TODO: Reply with a random idea message based on the category chosen ###
     message = emojize(update.message.text, use_aliases=True)
     if message == "Adventure":
-        idea = "Skuba Diving!!!"
+        document = service.documents().get(documentId=ADVENTURE_ID).execute()
+    elif message == "Chill":
+        document = service.documents().get(documentId=CHILL_ID).execute()
+    elif message == "Movie":
+        document = service.documents().get(documentId=MOVIE_ID).execute()
     elif message == "Overseas":
-        idea = "Phuket!"
+        document = service.documents().get(documentId=OVERSEAS_ID).execute()
 
     try:
+        idea = select_sentence(document)
         for id in chatId:
-            date_message = emojize("{0} wants to go {1}\n\n{2}".format(update.message.from_user.first_name, message, idea))
+            date_message = emojize("{0} Wants To Go {1} Date! :couple:\n\n{2}".format(update.message.from_user.first_name, message, idea))
             context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
             return ConversationHandler.END
     except Exception as ex:
@@ -216,7 +223,7 @@ def daily_encouragement(context):
     print ("Every daily interval")
     service = get_docs_service_obj()
     document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
-    encouragement = select_encouragement(document, diff_days)
+    encouragement = select_sentence(document)
     message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
     # message = header + encouragement
     # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
@@ -224,7 +231,7 @@ def daily_encouragement(context):
     for id in chatId:
         context.bot.send_message(chat_id=id, text=message)
 
-def select_encouragement(document, diff_days):
+def select_sentence(document):
     content = document.get('body').get('content')
     num_lines = len(content)
     count = 0   # count number of line breaks
@@ -450,7 +457,7 @@ def main():
     job = updater.job_queue
 
     # TESTING
-    job.run_repeating(daily_encouragement, interval=10, first=5) # Daily Encouragments
+    job.run_repeating(daily_encouragement, interval=3600, first=60) # Daily Encouragments
     # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
 
