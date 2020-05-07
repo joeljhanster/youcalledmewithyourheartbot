@@ -204,7 +204,7 @@ def generate_date(update, context):
     try:
         idea = select_sentence(document)
         for id in chatId:
-            date_message = emojize("{0} Wants To Go {1} Date! :couple:\n\n{2}".format(update.message.from_user.first_name, message, idea))
+            date_message = emojize("{0} Wants To Go {1} Date! :couple:\n\n{2}".format(update.message.from_user.first_name, message, idea), use_aliases=True)
             context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
             return ConversationHandler.END
     except Exception as ex:
