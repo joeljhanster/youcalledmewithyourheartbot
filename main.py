@@ -215,7 +215,7 @@ def daily_encouragement(context):
     ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
     print ("Every daily interval")
     service = get_docs_service_obj()
-    document = service.documents().get(documentId=CHILL_ID).execute()
+    document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
     encouragement = select_encouragement(document, diff_days)
     message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
     # message = header + encouragement
