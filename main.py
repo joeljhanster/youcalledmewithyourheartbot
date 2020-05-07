@@ -189,7 +189,9 @@ def generate_date(update, context):
         return cancel(update, context)
 
     ### TODO: Reply with a random idea message based on the category chosen ###
+    service = get_docs_service_obj()
     message = emojize(update.message.text, use_aliases=True)
+    
     if message == "Adventure":
         document = service.documents().get(documentId=ADVENTURE_ID).execute()
     elif message == "Chill":
@@ -198,7 +200,7 @@ def generate_date(update, context):
         document = service.documents().get(documentId=MOVIE_ID).execute()
     elif message == "Overseas":
         document = service.documents().get(documentId=OVERSEAS_ID).execute()
-
+    
     try:
         idea = select_sentence(document)
         for id in chatId:
