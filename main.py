@@ -39,6 +39,16 @@ SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com
 
 # Google Docs
 ENCOURAGEMENT_DOCUMENT_ID = '1X7_sLXuItIkqqVcNGxIUee1Jr6PH-tUbuJRpHNyrgeg'    # Daily Encouragement
+ENCOURAGEMENT_ID = '1X7_sLXuItIkqqVcNGxIUee1Jr6PH-tUbuJRpHNyrgeg'   # Daily Encouragement
+SCA_BDAY_ID = '1l2Z5OaAGvThcKl8gV_UG7TibeRZcifKCZrk_1YEJRRs'        # Sca's Birthday Wishes
+HAN_BDAY_ID = '1GFWs2CLi6pgAkGNZdL3f72s6z4F7gTUjWf0umh5pJaQ'        # Han's Birthday Wishes
+ANNIVERSARY_ID = '1BafCtdVX3K83XorhrtP_RHip3Tm6abyO6K14VomdCNo'     # Anniversary Wishes
+VDAY_ID = '1rlurNZuwP64XeDrQ1fB2Tf_-Y5TQ_4RSwcrhizTOeik'            # Valentine's Day Wishes
+XMAS_ID = '1oMUFCsPRxXmpc9NSx1Zy_8-FtwjiXeio0DlEbpu8STY'            # Christmas Wishes
+ADVENTURE_ID = '1NjLSUb4_AO3AVJMvzhIEIn-Gj6EPtvzH_Wz-U_gsGec'       # Adventure Dates
+OVERSEAS_ID = '1A9YNtzjhJbNw-8748HCXMA4haMRdgzL-ff7e_jB6rAQ'        # Overseas Dates
+CHILL_ID = '1wMemluKDnRZKGf25cNYvr5Y-IO_oo4BQ2eDOFan13pM'           # Chill Dates
+MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Dates
 
 # Telegram ID
 tele_id = "41459978"
@@ -206,8 +216,11 @@ def daily_encouragement(context):
     ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
     print ("Every daily interval")
     service = get_docs_service_obj()
-    document = service.documents().get(documentId=ENCOURAGEMENT_DOCUMENT_ID).execute()
-    message = select_encouragement(document, diff_days)
+    document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
+    encouragement = select_encouragement(document, diff_days)
+    message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
+    # message = header + encouragement
+    # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
 
     for id in chatId:
         context.bot.send_message(chat_id=id, text=message)
@@ -240,10 +253,8 @@ def select_encouragement(document, diff_days):
     used_sentence = random.choice(sentence_lst)
     used.append(used_sentence)
     sentence_lst.remove(used_sentence)
-    header = emojize("TOGETHER FOR {} DAYS :two_hearts:\n\n".format(diff_days), use_aliases=True)
-    header += used_sentence
-    # header = header.encode('utf-8')   ### uncomment for Python 2
-    return header    # converts unicode to string
+
+    return used_sentence
 
 def special_day(context):
     today = convert_utc()
@@ -440,7 +451,7 @@ def main():
     job = updater.job_queue
 
     # TESTING
-    job.run_repeating(daily_encouragement, interval=43200, first=60) # Daily Encouragments
+    job.run_repeating(daily_encouragement, interval=10, first=5) # Daily Encouragments
     # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
 
