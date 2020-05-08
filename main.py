@@ -1,25 +1,23 @@
 # This bot is made with love <3
-import sys
+# import sys
 import os
 import pickle
-import json
-from oauth2client import client
-from oauth2client.service_account import ServiceAccountCredentials
+# import json
+import random
+import copy
+import datetime
+import pytz
+import logging
+from emoji import emojize
+# from oauth2client import client
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-# from pydrive.auth import GoogleAuth
-# from pydrive.drive import GoogleDrive
 from apiclient.http import MediaFileUpload
-from emoji import emojize, demojize
-import random
-import copy
-
-import datetime
-import pytz
-from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
-from telegram import InlineQueryResultArticle, InputTextMessageContent, bot, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-import logging
+from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+# from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
+# from telegram import InlineQueryResultArticle, InputTextMessageContent, bot, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 # Enable logging
 # logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,7 +25,6 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.ERROR)
 
-# logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
 WRITE_WORD, UPLOAD_PHOTO, INSERT_TITLE, INSERT_CAPTION, SELECT_DATE = range(5)
@@ -61,17 +58,19 @@ v_day = datetime.date(2021,2,14)        # 1st Valentine's Day
 xmas_day = datetime.date(2020,12,25)    # 1st Christmas Day
 new_year = datetime.date(2021,1,1)      # 1st New Year Day: Add 10s countdown
 
-today_testing = datetime.date(2020,5,6)  # Testing Day
+today_testing = datetime.date(2020,5,8) # Testing Day
 
+# Message Types
 ENCOURAGEMENT_STRING = 'Encouragement'
 ADVENTURE_STRING = 'Adventure'
 OVERSEAS_STRING = 'Overseas'
 CHILL_STRING = 'Chill'
 MOVIE_STRING = 'Movie'
 
+# Dictionaries & Lists
+used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}   # Dictionary to contain used lists for each message type
 blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
 chatId = []             # Get Presca's tele Id and append to this list
-used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}               # Used list for encouragements
 
 # START: SHE SAID YES!
 def start(update, context):
@@ -243,7 +242,7 @@ def daily_encouragement(context):
 
 def select_sentence(document, messageType):
     used = used_dict.get(messageType)
-    print (used)
+    print (used)    # initial used list
     content = document.get('body').get('content')
     num_lines = len(content)
     count = 0   # count number of line breaks
@@ -274,7 +273,7 @@ def select_sentence(document, messageType):
     sentence_lst.remove(used_sentence)
 
     used_dict[messageType] = used
-    print (used_dict[messageType])
+    print (used_dict[messageType])  # final used list
 
     return used_sentence
 
