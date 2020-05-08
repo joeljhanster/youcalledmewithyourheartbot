@@ -330,6 +330,7 @@ def special_day(context):
             context.bot.send_animation(chat_id=id, animation='./animation.gif')
 
     except Exception as ex:
+        print (ex)
         print("Everyday is a special day")
 
 def special_date(date):
