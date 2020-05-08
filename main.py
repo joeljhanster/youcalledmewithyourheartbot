@@ -189,7 +189,7 @@ def viewjournal(update, context):
     else:
         # Opens up the blogger website for browsing
         message = emojize("*Here's where all the memories are stored:*\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN_V2)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
 
 # DATE: MAKE DATING FUN WITH WILD IDEAS!
 def date(update, context):
@@ -253,7 +253,7 @@ def daily_encouragement(context):
     # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
 
     for id in chatId:
-        context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN_V2)
+        context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN)
 
 def select_sentence(document, messageType):
     used = used_dict.get(messageType)
