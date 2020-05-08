@@ -96,9 +96,10 @@ def word(update, context):
         if id != update.effective_chat.id:
             received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=received_message)
-            context.bot.send_message(chat_id=HAN_ID, text=received_message)    # testing
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
+            received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
+            context.bot.send_message(chat_id=HAN_ID, text=received_message)    # testing
             context.bot.send_message(chat_id=HAN_ID, text=update.message.text) # testing
             sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=sent_message)
