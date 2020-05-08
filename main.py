@@ -319,7 +319,7 @@ def special_day(context):
 
         elif (today_month, today_day) == (test_month, test_day):
             message = emojize("I AM ONLY TESTING! :smile:", use_aliases=True)
-            gif = './puppies.mp4'
+            gif = './animation.gif'
             # message = emojize("It is our anniversary! :smile:", use_aliases=True)   # Testing anniversary message
             # message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)    # Testing Sca's birthday message
             # message = emojize("It is Han's Birthday! :smile:", use_aliases=True)    # Testing Han's birthday message
@@ -327,7 +327,7 @@ def special_day(context):
 
         for id in chatId:
             context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN)
-            context.bot.send_animation(chat_id=id, animation='./puppies.mp4')
+            context.bot.send_animation(chat_id=id, animation='./animation.gif')
 
     except Exception as ex:
         print("Everyday is a special day")
@@ -488,7 +488,7 @@ def main():
 
     # TESTING
     job.run_repeating(daily_encouragement, interval=3600, first=60) # Daily Encouragments
-    job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
+    job.run_repeating(special_day, interval=30, first=0) # Check if it is a special day
 
     # ACTUAL
     job.run_repeating(daily_encouragement, interval=86400, first=convert_time(datetime.time(17,5,17,5))) # Daily Encouragments
