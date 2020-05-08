@@ -1,27 +1,20 @@
 # This bot is made with love <3
-# import sys
 import os
 import pickle
-# import json
 import random
 import copy
 import datetime
 import pytz
 import logging
 from emoji import emojize
-# from oauth2client import client
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient.http import MediaFileUpload
 from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-# from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters, InlineQueryHandler, CallbackContext, PicklePersistence
-# from telegram import InlineQueryResultArticle, InputTextMessageContent, bot, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 # Enable logging
-# logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-#                      level=logging.INFO)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.ERROR)
 
@@ -70,18 +63,28 @@ MOVIE_STRING = 'Movie'
 # Dictionaries & Lists
 used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}   # Dictionary to contain used lists for each message type
 blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
-chatId = []             # Get Presca's tele Id and append to this list
+chatId = [TELE_ID]             # Get Presca's tele Id and append to this list
 
 # START: SHE SAID YES!
 def start(update, context):
-    welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
-    context.bot.send_message(chat_id=TELE_ID, text="{} said YES!".format(update.message.from_user.first_name))
-    if update.effective_chat.id not in chatId:
-        chatId.append(update.effective_chat.id)
+    print(chatId)
+    print(TELE_ID)
+    print(update.effective_chat.id)
+    if (check_id(update.effective_chat.id) == False and len(chatId) >= 2):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
+    else:
+        welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
+        context.bot.send_message(chat_id=TELE_ID, text="{} said YES!".format(update.message.from_user.first_name))
+        if update.effective_chat.id not in chatId:
+            chatId.append(update.effective_chat.id)
 
 # WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
 def write(update, context):
+    if (check_id(update.effective_chat.id) == False):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+    
     message = emojize("Surprise your lover with a word of encouragement! :heart:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
     return WRITE_WORD
@@ -104,6 +107,10 @@ def word(update, context):
 
 # JOURNAL: STORE OUR FAVOURITE PHOTOS AND CAPTION IT! LET'S KEEP OUR MEMORIES!
 def journal(update, context):
+    if (check_id(update.effective_chat.id) == False):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
     # Prompt user to upload a picture
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
@@ -176,12 +183,19 @@ def caption(update, context):
 
 # VIEWJOURNAL: LET'S VISIT MEMORY LANE!
 def viewjournal(update, context):
-    # Opens up the blogger website for browsing
-    message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+    if (check_id(update.effective_chat.id) == False):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
+    else:
+        # Opens up the blogger website for browsing
+        message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
 
 # DATE: MAKE DATING FUN WITH WILD IDEAS!
 def date(update, context):
+    if (check_id(update.effective_chat.id) == False):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+
     ### TODO: Show different options for each category of dating ideas ###
     message = emojize("Select the category!", use_aliases=True)
     adventure_keyboard = KeyboardButton(text=ADVENTURE_STRING)
@@ -335,6 +349,13 @@ def check_commands(message):
     message = emojize(message, use_aliases=True)
     if (message[0] == '/'):
         logger.info('Message starts with "/"')
+        return True
+    else:
+        return False
+
+# Function to check if Telegram ID is Han's or Sca's
+def check_id(id):
+    if id in chatId:
         return True
     else:
         return False
