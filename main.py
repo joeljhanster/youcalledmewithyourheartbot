@@ -327,7 +327,7 @@ def special_day(context):
 
         for id in chatId:
             context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN)
-            context.bot.send_animation(chat_id=id, animation=gif)
+            context.bot.send_animation(chat_id=id, animation='./puppies.mp4')
 
     except Exception as ex:
         print("Everyday is a special day")
