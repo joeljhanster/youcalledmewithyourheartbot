@@ -63,25 +63,24 @@ MOVIE_STRING = 'Movie'
 # Dictionaries & Lists
 used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}   # Dictionary to contain used lists for each message type
 blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
-chatId = [TELE_ID]             # Get Presca's tele Id and append to this list
+# chatId = [TELE_ID]             # Get Presca's tele Id and append to this list
+chatId = [123,456]
 
 # START: SHE SAID YES!
 def start(update, context):
-    print(chatId)
-    print(TELE_ID)
-    print(update.effective_chat.id)
-    if (check_id(update.effective_chat.id) == False and len(chatId) >= 2):
+    if (update.effective_chat.id not in chatId and len(chatId) >= 2):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
     else:
         welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
         context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
         context.bot.send_message(chat_id=TELE_ID, text="{} said YES!".format(update.message.from_user.first_name))
         if update.effective_chat.id not in chatId:
+            print("Sca's Telegram Id: {}".format(update.effective_chat.id))
             chatId.append(update.effective_chat.id)
 
 # WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
 def write(update, context):
-    if (check_id(update.effective_chat.id) == False):
+    if (update.effective_chat.id not in chatId):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
     
@@ -98,6 +97,7 @@ def word(update, context):
         if id != update.effective_chat.id:
             received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=received_message)
+            context.bot.send_message(chat_id=TELE_ID, text=received_message)    # testing
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
             context.bot.send_message(chat_id=TELE_ID, text=update.message.text) # testing
@@ -107,7 +107,7 @@ def word(update, context):
 
 # JOURNAL: STORE OUR FAVOURITE PHOTOS AND CAPTION IT! LET'S KEEP OUR MEMORIES!
 def journal(update, context):
-    if (check_id(update.effective_chat.id) == False):
+    if (update.effective_chat.id not in chatId):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
@@ -115,7 +115,7 @@ def journal(update, context):
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
     blog_dict[update.effective_chat.id] = {}    # {'tele_id': {}}
-    print (blog_dict)
+
     return UPLOAD_PHOTO
 
 def photo(update, context):
@@ -126,7 +126,6 @@ def photo(update, context):
     photo_file = update.message.photo[-1].get_file()
     photo_file.download(fileName)
     blog_dict[update.effective_chat.id]['fileName'] = fileName  # {'tele_id': {'fileName': fileName}}
-    print (blog_dict)
 
     # Prompt user to insert a title for the photo
     message = emojize("Insert a Title!!! :sparkles:", use_aliases=True)
@@ -140,7 +139,6 @@ def title(update, context):
     
     title = emojize(update.message.text, use_aliases=True)
     blog_dict[update.effective_chat.id]['title'] = title   # {'tele_id': {'fileName': fileName, 'title': title}}
-    print (blog_dict)
 
     # Prompt user to write a description of the photo
     message = emojize("Now write a story about this photo! :black_nib:", use_aliases=True)
@@ -186,7 +184,7 @@ def caption(update, context):
 
 # VIEWJOURNAL: LET'S VISIT MEMORY LANE!
 def viewjournal(update, context):
-    if (check_id(update.effective_chat.id) == False):
+    if (update.effective_chat.id not in chatId):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
     else:
         # Opens up the blogger website for browsing
@@ -195,7 +193,7 @@ def viewjournal(update, context):
 
 # DATE: MAKE DATING FUN WITH WILD IDEAS!
 def date(update, context):
-    if (check_id(update.effective_chat.id) == False):
+    if (update.effective_chat.id not in chatId):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
         return ConversationHandler.END
 
@@ -352,13 +350,6 @@ def check_commands(message):
     message = emojize(message, use_aliases=True)
     if (message[0] == '/'):
         logger.info('Message starts with "/"')
-        return True
-    else:
-        return False
-
-# Function to check if Telegram ID is Han's or Sca's
-def check_id(id):
-    if id in chatId:
         return True
     else:
         return False
