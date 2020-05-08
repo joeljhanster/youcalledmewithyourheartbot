@@ -243,6 +243,7 @@ def daily_encouragement(context):
 
 def select_sentence(document, messageType):
     used = used_dict.get(messageType)
+    print (used)
     content = document.get('body').get('content')
     num_lines = len(content)
     count = 0   # count number of line breaks
@@ -259,7 +260,8 @@ def select_sentence(document, messageType):
         else:
             sentence += message
             if i == num_lines-1:    # check if last line
-                sentence_lst.append(sentence)
+                if (sentence not in used and sentence != ""):
+                    sentence_lst.append(sentence)
                 sentence = ""
     
     # If all the encouragements are used, reset
@@ -272,6 +274,7 @@ def select_sentence(document, messageType):
     sentence_lst.remove(used_sentence)
 
     used_dict[messageType] = used
+    print (used_dict[messageType])
 
     return used_sentence
 
