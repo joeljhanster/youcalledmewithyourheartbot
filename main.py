@@ -12,7 +12,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from apiclient.http import MediaFileUpload
 from telegram.ext import Updater, ConversationHandler, CommandHandler, MessageHandler, Filters
-from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove, ParseMode
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -188,8 +188,8 @@ def viewjournal(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
     else:
         # Opens up the blogger website for browsing
-        message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+        message = emojize("*Here's where all the memories are stored:*\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN_V2)
 
 # DATE: MAKE DATING FUN WITH WILD IDEAS!
 def date(update, context):
@@ -249,11 +249,11 @@ def daily_encouragement(context):
     service = get_docs_service_obj()
     document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
     encouragement = select_sentence(document, ENCOURAGEMENT_STRING)
-    message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
+    message = emojize("*TOGETHER FOR {0} DAYS* :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
     # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
 
     for id in chatId:
-        context.bot.send_message(chat_id=id, text=message)
+        context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN_V2)
 
 def select_sentence(document, messageType):
     used = used_dict.get(messageType)
