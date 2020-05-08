@@ -63,11 +63,15 @@ new_year = datetime.date(2021,1,1)      # 1st New Year Day: Add 10s countdown
 
 today_testing = datetime.date(2020,5,6)  # Testing Day
 
-blog_dict = {}
-title_text = []
-filePath = []
+ENCOURAGEMENT_STRING = 'Encouragement'
+ADVENTURE_STRING = 'Adventure'
+OVERSEAS_STRING = 'Overseas'
+CHILL_STRING = 'Chill'
+MOVIE_STRING = 'Movie'
+
+blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
 chatId = []             # Get Presca's tele Id and append to this list
-used = []               # Used list for encouragements
+used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}               # Used list for encouragements
 
 # START: SHE SAID YES!
 def start(update, context):
@@ -114,7 +118,6 @@ def photo(update, context):
     fileName = "{}.png".format(timestr)
     photo_file = update.message.photo[-1].get_file()
     photo_file.download(fileName)
-    # filePath.append(fileName)
     blog_dict[update.effective_chat.id]['fileName'] = fileName  # {'tele_id': {'fileName': fileName}}
 
     # Prompt user to insert a title for the photo
@@ -128,8 +131,6 @@ def title(update, context):
         return cancel(update, context)
     
     title = emojize(update.message.text, use_aliases=True)
-
-    # title_text.append(emojize(update.message.text, use_aliases=True))
     blog_dict[update.effective_chat.id]['title'] = title   # {'tele_id': {'fileName': fileName, 'title': title}}
 
     # Prompt user to write a description of the photo
@@ -149,18 +150,10 @@ def caption(update, context):
     title = blog_dict.get(update.effective_chat.id).get('title')
 
     drive_handler, blog_handler = get_blogger_service_obj()
-    # url = get_drive_information(drive_handler,filePath[-1])
     url = get_drive_information(drive_handler, fileName)
     get_blog_information(blog_handler)
 
     try:
-        # data = {
-        #     "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
-        #     "title": title_text[-1],
-        #     "blog": {
-        #         "id": BLOG_ID
-        #     }
-        # }
         data = {
             "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
             "title": title,
@@ -170,8 +163,6 @@ def caption(update, context):
         }
         
         ### TODO: Delete photo generated after storing into Google Drive
-        # del filePath[:]
-        # del title_text[:]
 
         posts = blog_handler.posts()
         posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
@@ -194,10 +185,10 @@ def viewjournal(update, context):
 def date(update, context):
     ### TODO: Show different options for each category of dating ideas ###
     message = emojize("Select the category!", use_aliases=True)
-    adventure_keyboard = KeyboardButton(text="Adventure")
-    chill_keyboard = KeyboardButton(text="Chill")
-    movie_keyboard = KeyboardButton(text="Movie")
-    overseas_keyboard = KeyboardButton(text="Overseas")
+    adventure_keyboard = KeyboardButton(text=ADVENTURE_STRING)
+    chill_keyboard = KeyboardButton(text=CHILL_STRING)
+    movie_keyboard = KeyboardButton(text=MOVIE_STRING)
+    overseas_keyboard = KeyboardButton(text=OVERSEAS_STRING)
     custom_keyboard = [[adventure_keyboard, chill_keyboard], [movie_keyboard, overseas_keyboard]]
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardMarkup(custom_keyboard, one_time_keyboard=True))
     return SELECT_DATE
@@ -211,17 +202,17 @@ def generate_date(update, context):
     service = get_docs_service_obj()
     message = emojize(update.message.text, use_aliases=True)
     
-    if message == "Adventure":
+    if message == ADVENTURE_STRING:
         document = service.documents().get(documentId=ADVENTURE_ID).execute()
-    elif message == "Chill":
+    elif message == CHILL_STRING:
         document = service.documents().get(documentId=CHILL_ID).execute()
-    elif message == "Movie":
+    elif message == MOVIE_STRING:
         document = service.documents().get(documentId=MOVIE_ID).execute()
-    elif message == "Overseas":
+    elif message == OVERSEAS_STRING:
         document = service.documents().get(documentId=OVERSEAS_ID).execute()
     
     try:
-        idea = select_sentence(document)
+        idea = select_sentence(document, message)
         for id in chatId:
             date_message = emojize("{0} Wants To Go {1} Date! :couple:\n\n{2}".format(update.message.from_user.first_name, message, idea), use_aliases=True)
             context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
@@ -243,14 +234,15 @@ def daily_encouragement(context):
     print ("Every daily interval")
     service = get_docs_service_obj()
     document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
-    encouragement = select_sentence(document)
+    encouragement = select_sentence(document, ENCOURAGEMENT_STRING)
     message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
     # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
 
     for id in chatId:
         context.bot.send_message(chat_id=id, text=message)
 
-def select_sentence(document):
+def select_sentence(document, messageType):
+    used = used_dict.get(messageType)
     content = document.get('body').get('content')
     num_lines = len(content)
     count = 0   # count number of line breaks
@@ -278,6 +270,8 @@ def select_sentence(document):
     used_sentence = random.choice(sentence_lst)
     used.append(used_sentence)
     sentence_lst.remove(used_sentence)
+
+    used_dict[messageType] = used
 
     return used_sentence
 
