@@ -41,7 +41,7 @@ MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Date
 
 # Telegram
 TELEGRAM_TOKEN = '1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8'
-TELE_ID = 41459978
+HAN_ID = 41459978
 
 # Special Dates
 day0 = datetime.date(2020,5,17)         # Anniversary
@@ -63,8 +63,7 @@ MOVIE_STRING = 'Movie'
 # Dictionaries & Lists
 used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}   # Dictionary to contain used lists for each message type
 blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
-# chatId = [TELE_ID]             # Get Presca's tele Id and append to this list
-chatId = [123]
+chatId = [HAN_ID]             # Get Presca's tele Id and append to this list
 
 # START: SHE SAID YES!
 def start(update, context):
@@ -73,7 +72,7 @@ def start(update, context):
     else:
         welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
         context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
-        context.bot.send_message(chat_id=TELE_ID, text="{} said YES!".format(update.message.from_user.first_name))
+        context.bot.send_message(chat_id=HAN_ID, text="{} said YES!".format(update.message.from_user.first_name))
         if update.effective_chat.id not in chatId:
             print("Sca's Telegram Id: {}".format(update.effective_chat.id))
             chatId.append(update.effective_chat.id)
@@ -97,10 +96,10 @@ def word(update, context):
         if id != update.effective_chat.id:
             received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=received_message)
-            context.bot.send_message(chat_id=TELE_ID, text=received_message)    # testing
+            context.bot.send_message(chat_id=HAN_ID, text=received_message)    # testing
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
-            context.bot.send_message(chat_id=TELE_ID, text=update.message.text) # testing
+            context.bot.send_message(chat_id=HAN_ID, text=update.message.text) # testing
             sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=sent_message)
     return ConversationHandler.END
