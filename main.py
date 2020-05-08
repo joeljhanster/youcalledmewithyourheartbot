@@ -71,10 +71,10 @@ def start(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
     else:
         welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
-        context.bot.send_message(chat_id=HAN_ID, text="{} said YES!".format(update.message.from_user.first_name))
+        context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
+        context.bot.send_message(chat_id=HAN_ID, text="{0} said *YES!*".format(update.message.from_user.first_name), parse_mode=ParseMode.MARKDOWN)
         if update.effective_chat.id not in chatId:
-            print("Sca's Telegram Id: {}".format(update.effective_chat.id))
+            print("Sca's Telegram Id: {0}".format(update.effective_chat.id))
             chatId.append(update.effective_chat.id)
 
 # WRITE: SUPPORT EACH OTHER WITH A WORD OF ENCOURAGEMENT!
@@ -84,7 +84,7 @@ def write(update, context):
         return ConversationHandler.END
     
     message = emojize("Surprise your lover with a word of encouragement! :heart:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
     return WRITE_WORD
 
 def word(update, context):
@@ -98,11 +98,11 @@ def word(update, context):
     for id in chatId:
         if id != update.effective_chat.id:
             received_message = emojize("Your partner has a word of encouragement for you! Remember to show your appreciation! :kissing_heart:", use_aliases=True)
-            context.bot.send_message(chat_id=id, text=received_message)
-            context.bot.send_message(chat_id=id, text=update.message.text)
+            context.bot.send_message(chat_id=id, text=received_message, parse_mode=ParseMode.MARKDOWN)
+            context.bot.send_message(chat_id=id, text=update.message.text, parse_mode=ParseMode.MARKDOWN)
         else:
             sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
-            context.bot.send_message(chat_id=id, text=sent_message)
+            context.bot.send_message(chat_id=id, text=sent_message, parse_mode=ParseMode.MARKDOWN)
     return ConversationHandler.END
 
 # JOURNAL: STORE OUR FAVOURITE PHOTOS AND CAPTION IT! LET'S KEEP OUR MEMORIES!
@@ -113,7 +113,7 @@ def journal(update, context):
 
     # Prompt user to upload a picture
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
     blog_dict[update.effective_chat.id] = {}    # {'tele_id': {}}
 
     return UPLOAD_PHOTO
@@ -188,7 +188,7 @@ def viewjournal(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry but you don't belong here!", reply_markup=ReplyKeyboardRemove())
     else:
         # Opens up the blogger website for browsing
-        message = emojize("*Here's where all the memories are stored:*\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
+        message = emojize("Here's where all the memories are stored:\nhttps://youcalledmewithyourheart.blogspot.com/", use_aliases=True)
         context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
 
 # DATE: MAKE DATING FUN WITH WILD IDEAS!
@@ -229,7 +229,7 @@ def generate_date(update, context):
         idea = select_sentence(document, message)
         for id in chatId:
             date_message = emojize("{0} Wants To Go {1} Date! :couple:\n\n{2}".format(update.message.from_user.first_name, message, idea), use_aliases=True)
-            context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove())
+            context.bot.send_message(chat_id=id, text=date_message, reply_markup=ReplyKeyboardRemove(), parse_mode=ParseMode.MARKDOWN)
             return ConversationHandler.END
     except Exception as ex:
         error_message = emojize("Select one of the options below!", use_aliases=True)
@@ -307,7 +307,6 @@ def special_day(context):
     try:
         if (today_month, today_year) == (anni_month, anni_day):
             message = emojize("It is our anniversary! :smile:", use_aliases=True)
-            gif = ''
 
         elif (today_month, today_day) == (pday_month, pday_day):
             message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)
@@ -320,13 +319,15 @@ def special_day(context):
 
         elif (today_month, today_day) == (test_month, test_day):
             message = emojize("I AM ONLY TESTING! :smile:", use_aliases=True)
+            gif = './puppies.mp4'
             # message = emojize("It is our anniversary! :smile:", use_aliases=True)   # Testing anniversary message
             # message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)    # Testing Sca's birthday message
             # message = emojize("It is Han's Birthday! :smile:", use_aliases=True)    # Testing Han's birthday message
             # message = emojize("It is Valentine's Day! :smile:", use_aliases=True)   # Testing Valentine's Day message
 
         for id in chatId:
-            context.bot.send_message(chat_id=id, text=message)
+            context.bot.send_message(chat_id=id, text=message, parse_mode=ParseMode.MARKDOWN)
+            context.bot.send_animation(chat_id=id, animation=gif)
 
     except Exception as ex:
         print("Everyday is a special day")
@@ -343,7 +344,7 @@ def unknown(update, context):
     message = emojize(update.message.text, use_aliases=True)
     if message not in commands:
         message = emojize("You are loved! Maybe you want to type another command? :smile:", use_aliases=True)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        context.bot.send_message(chat_id=update.effective_chat.id, text=message, parse_mode=ParseMode.MARKDOWN)
 
 # Function to check if message starts with "/"
 def check_commands(message):
@@ -483,19 +484,16 @@ def main():
     dispatcher.add_handler(unknown_handler,3)
 
     # JOB QUEUE
-    ### TODO: CHECK WHETHER THE REMINDER IS SET CORRECTLY ###
     job = updater.job_queue
 
     # TESTING
     job.run_repeating(daily_encouragement, interval=3600, first=60) # Daily Encouragments
-    # job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
-
+    job.run_repeating(special_day, interval=10, first=0) # Check if it is a special day
 
     # ACTUAL
     job.run_repeating(daily_encouragement, interval=86400, first=convert_time(datetime.time(17,5,17,5))) # Daily Encouragments
     job.run_repeating(special_day, interval=86400, first=convert_time(datetime.time(0,0,0,0))) # Check if it is a special day
 
-    ### TODO: MAKE THE TELEGRAM BOT PERSISTENT ###
     print("Starting telegram bot")
     updater.start_polling()
     updater.idle()
