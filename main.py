@@ -64,7 +64,7 @@ MOVIE_STRING = 'Movie'
 used_dict = {ENCOURAGEMENT_STRING: [], ADVENTURE_STRING: [], OVERSEAS_STRING: [], CHILL_STRING: [], MOVIE_STRING: []}   # Dictionary to contain used lists for each message type
 blog_dict = {}          # Dictionary to store blog post information, dictionary instead of list to prevent race conditions
 # chatId = [TELE_ID]             # Get Presca's tele Id and append to this list
-chatId = [123,456]
+chatId = [123]
 
 # START: SHE SAID YES!
 def start(update, context):
