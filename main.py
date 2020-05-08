@@ -49,17 +49,21 @@ OVERSEAS_ID = '1A9YNtzjhJbNw-8748HCXMA4haMRdgzL-ff7e_jB6rAQ'        # Overseas D
 CHILL_ID = '1wMemluKDnRZKGf25cNYvr5Y-IO_oo4BQ2eDOFan13pM'           # Chill Dates
 MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Dates
 
-# Telegram ID
-tele_id = "41459978"
+# Telegram
+TELEGRAM_TOKEN = '1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8'
+TELE_ID = "41459978"
 
 # Special Dates
-day0 = datetime.date(2020,5,17)     # Anniversary
-p_bday = datetime.date(1999,2,25)   # Sca's birthday
-j_bday = datetime.date(1997,4,17)   # Han's birthday
-v_day = datetime.date(2021,2,14)    # 1st Valentine's Day
+day0 = datetime.date(2020,5,17)         # Anniversary
+p_bday = datetime.date(1999,2,25)       # Sca's birthday
+j_bday = datetime.date(1997,4,17)       # Han's birthday
+v_day = datetime.date(2021,2,14)        # 1st Valentine's Day
+xmas_day = datetime.date(2020,12,25)    # 1st Christmas Day
+new_year = datetime.date(2021,1,1)      # 1st New Year Day: Add 10s countdown
 
 today_testing = datetime.date(2020,5,6)  # Testing Day
 
+blog_dict = {}
 title_text = []
 filePath = []
 chatId = []             # Get Presca's tele Id and append to this list
@@ -69,7 +73,7 @@ used = []               # Used list for encouragements
 def start(update, context):
     welcome_message = emojize("Hello Sca! Welcome to a whole new journey with Han :blush::blush::blush:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, reply_markup=ReplyKeyboardRemove())
-    context.bot.send_message(chat_id=tele_id, text="{} said YES!".format(update.message.from_user.first_name))
+    context.bot.send_message(chat_id=TELE_ID, text="{} said YES!".format(update.message.from_user.first_name))
     if update.effective_chat.id not in chatId:
         chatId.append(update.effective_chat.id)
 
@@ -90,7 +94,7 @@ def word(update, context):
             context.bot.send_message(chat_id=id, text=received_message)
             context.bot.send_message(chat_id=id, text=update.message.text)
         else:
-            context.bot.send_message(chat_id=tele_id, text=update.message.text) # testing
+            context.bot.send_message(chat_id=TELE_ID, text=update.message.text) # testing
             sent_message = emojize("Your partner should have received your word of encouragement! :+1:", use_aliases=True)
             context.bot.send_message(chat_id=id, text=sent_message)
     return ConversationHandler.END
@@ -100,6 +104,7 @@ def journal(update, context):
     # Prompt user to upload a picture
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
+    blog_dict[update.effective_chat.id] = {}    # {'tele_id': {}}
     return UPLOAD_PHOTO
 
 def photo(update, context):
@@ -109,7 +114,8 @@ def photo(update, context):
     fileName = "{}.png".format(timestr)
     photo_file = update.message.photo[-1].get_file()
     photo_file.download(fileName)
-    filePath.append(fileName)
+    # filePath.append(fileName)
+    blog_dict[update.effective_chat.id]['fileName'] = fileName  # {'tele_id': {'fileName': fileName}}
 
     # Prompt user to insert a title for the photo
     message = emojize("Insert a Title!!! :sparkles:", use_aliases=True)
@@ -121,7 +127,10 @@ def title(update, context):
     if boolean:
         return cancel(update, context)
     
-    title_text.append(emojize(update.message.text, use_aliases=True))
+    title = emojize(update.message.text, use_aliases=True)
+
+    # title_text.append(emojize(update.message.text, use_aliases=True))
+    blog_dict[update.effective_chat.id]['title'] = title   # {'tele_id': {'fileName': fileName, 'title': title}}
 
     # Prompt user to write a description of the photo
     message = emojize("Now write a story about this photo! :black_nib:", use_aliases=True)
@@ -136,23 +145,33 @@ def caption(update, context):
     # Record the description of the photo and store it into the blog
     message = emojize(update.message.text, use_aliases=True)
     # message = message.encode('utf-8')             # Remove for Python 2
+    fileName = blog_dict.get(update.effective_chat.id).get('fileName')
+    title = blog_dict.get(update.effective_chat.id).get('title')
 
     drive_handler, blog_handler = get_blogger_service_obj()
-    url = get_drive_information(drive_handler,filePath[-1])
+    # url = get_drive_information(drive_handler,filePath[-1])
+    url = get_drive_information(drive_handler, fileName)
     get_blog_information(blog_handler)
 
     try:
+        # data = {
+        #     "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
+        #     "title": title_text[-1],
+        #     "blog": {
+        #         "id": BLOG_ID
+        #     }
+        # }
         data = {
             "content": "<p style='float: left; width: auto; margin-left: 5px; margin-bottom: 5px; text-align: justify: font-size: 14pt;'><img src = {} style = 'width:100%;height:100%'><br>{}</p>".format(url, message),
-            "title": title_text[-1],
+            "title": title,
             "blog": {
                 "id": BLOG_ID
             }
         }
         
         ### TODO: Delete photo generated after storing into Google Drive
-        del filePath[:]
-        del title_text[:]
+        # del filePath[:]
+        # del title_text[:]
 
         posts = blog_handler.posts()
         posts.insert(blogId=BLOG_ID, body=data, isDraft=False, fetchImages=True).execute()
@@ -221,13 +240,11 @@ def daily_encouragement(context):
     today = convert_utc()
     timedelta = today - day0
     diff_days = timedelta.days
-    ### TODO: AUTO-GENERATE MESSAGES TO BE SHARED DAILY, CAN BE BIBLE VERSES, QOTD, LOVE MESSAGES, WORDS OF ENCOURAGEMENT ###
     print ("Every daily interval")
     service = get_docs_service_obj()
     document = service.documents().get(documentId=ENCOURAGEMENT_ID).execute()
     encouragement = select_sentence(document)
     message = emojize("TOGETHER FOR {0} DAYS :two_hearts:\n\n{1}".format(diff_days, encouragement), use_aliases=True)
-    # message = header + encouragement
     # message = message.encode('utf-8')   ### uncomment for Python 2: converts unicode to string
 
     for id in chatId:
@@ -276,32 +293,32 @@ def special_day(context):
 
     print("Checking for special day")
 
-    if (today_month, today_year) == (anni_month, anni_day):
-        message = emojize("It is our anniversary! :smile:", use_aliases=True)
+    try:
+        if (today_month, today_year) == (anni_month, anni_day):
+            message = emojize("It is our anniversary! :smile:", use_aliases=True)
+            gif = ''
 
-    elif (today_month, today_day) == (pday_month, pday_day):
-        message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)
+        elif (today_month, today_day) == (pday_month, pday_day):
+            message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)
 
-    elif (today_month, today_day) == (jday_month, jday_day):
-        message = emojize("It is Han's Birthday! :smile:", use_aliases=True)
+        elif (today_month, today_day) == (jday_month, jday_day):
+            message = emojize("It is Han's Birthday! :smile:", use_aliases=True)
 
-    elif (today_month, today_day) == (vday_month, vday_day):
-        message = emojize("It is Valentine's Day! :smile:", use_aliases=True)
+        elif (today_month, today_day) == (vday_month, vday_day):
+            message = emojize("It is Valentine's Day! :smile:", use_aliases=True)
 
-    elif (today_month, today_day) == (test_month, test_day):
-        message = emojize("I AM ONLY TESTING! :smile:", use_aliases=True)
-        # message = emojize("It is our anniversary! :smile:", use_aliases=True)   # Testing anniversary message
-        # message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)    # Testing Sca's birthday message
-        # message = emojize("It is Han's Birthday! :smile:", use_aliases=True)    # Testing Han's birthday message
-        # message = emojize("It is Valentine's Day! :smile:", use_aliases=True)   # Testing Valentine's Day message
+        elif (today_month, today_day) == (test_month, test_day):
+            message = emojize("I AM ONLY TESTING! :smile:", use_aliases=True)
+            # message = emojize("It is our anniversary! :smile:", use_aliases=True)   # Testing anniversary message
+            # message = emojize("It is Sca's Birthday! :smile:", use_aliases=True)    # Testing Sca's birthday message
+            # message = emojize("It is Han's Birthday! :smile:", use_aliases=True)    # Testing Han's birthday message
+            # message = emojize("It is Valentine's Day! :smile:", use_aliases=True)   # Testing Valentine's Day message
 
-    else:
-        message = ""
-        print("Everyday is a special day")
-
-    if message != "":
         for id in chatId:
             context.bot.send_message(chat_id=id, text=message)
+
+    except Exception as ex:
+        print("Everyday is a special day")
 
 def special_date(date):
     year = date.year
@@ -405,7 +422,7 @@ def convert_time(time):
     return time.replace(hour=new_hour)
 
 def main():
-    updater = Updater(token='1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8', use_context=True)   # INSERT TOKEN
+    updater = Updater(token=TELEGRAM_TOKEN, use_context=True)   # INSERT TOKEN
     dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
