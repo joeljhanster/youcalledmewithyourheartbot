@@ -41,7 +41,7 @@ MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Date
 
 # Telegram
 TELEGRAM_TOKEN = '1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8'
-TELE_ID = "41459978"
+TELE_ID = 41459978
 
 # Special Dates
 day0 = datetime.date(2020,5,17)         # Anniversary
@@ -115,6 +115,7 @@ def journal(update, context):
     message = emojize("Have a memory that you wish to add to the journal? First upload a photo! :camera:", use_aliases=True)
     context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=ReplyKeyboardRemove())
     blog_dict[update.effective_chat.id] = {}    # {'tele_id': {}}
+    print (blog_dict)
     return UPLOAD_PHOTO
 
 def photo(update, context):
@@ -125,6 +126,7 @@ def photo(update, context):
     photo_file = update.message.photo[-1].get_file()
     photo_file.download(fileName)
     blog_dict[update.effective_chat.id]['fileName'] = fileName  # {'tele_id': {'fileName': fileName}}
+    print (blog_dict)
 
     # Prompt user to insert a title for the photo
     message = emojize("Insert a Title!!! :sparkles:", use_aliases=True)
@@ -138,6 +140,7 @@ def title(update, context):
     
     title = emojize(update.message.text, use_aliases=True)
     blog_dict[update.effective_chat.id]['title'] = title   # {'tele_id': {'fileName': fileName, 'title': title}}
+    print (blog_dict)
 
     # Prompt user to write a description of the photo
     message = emojize("Now write a story about this photo! :black_nib:", use_aliases=True)
