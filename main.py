@@ -24,24 +24,25 @@ WRITE_WORD, UPLOAD_PHOTO, INSERT_TITLE, INSERT_CAPTION, SELECT_DATE = range(5)
 commands = ['/start', '/write', '/journal', '/viewjournal', '/date']
 
 # Blogger
-BLOG_ID = "4868757922382507011"
+BLOG_ID = ''    # INSERT BLOGGER ID
 SCOPES = ['https://www.googleapis.com/auth/blogger', 'https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/documents.readonly']
 
 # Google Docs
-ENCOURAGEMENT_ID = '1X7_sLXuItIkqqVcNGxIUee1Jr6PH-tUbuJRpHNyrgeg'   # Daily Encouragement
-SCA_BDAY_ID = '1l2Z5OaAGvThcKl8gV_UG7TibeRZcifKCZrk_1YEJRRs'        # Sca's Birthday Wishes
-HAN_BDAY_ID = '1GFWs2CLi6pgAkGNZdL3f72s6z4F7gTUjWf0umh5pJaQ'        # Han's Birthday Wishes
-ANNIVERSARY_ID = '1BafCtdVX3K83XorhrtP_RHip3Tm6abyO6K14VomdCNo'     # Anniversary Wishes
-VDAY_ID = '1rlurNZuwP64XeDrQ1fB2Tf_-Y5TQ_4RSwcrhizTOeik'            # Valentine's Day Wishes
-XMAS_ID = '1oMUFCsPRxXmpc9NSx1Zy_8-FtwjiXeio0DlEbpu8STY'            # Christmas Wishes
-ADVENTURE_ID = '1NjLSUb4_AO3AVJMvzhIEIn-Gj6EPtvzH_Wz-U_gsGec'       # Adventure Dates
-OVERSEAS_ID = '1A9YNtzjhJbNw-8748HCXMA4haMRdgzL-ff7e_jB6rAQ'        # Overseas Dates
-CHILL_ID = '1wMemluKDnRZKGf25cNYvr5Y-IO_oo4BQ2eDOFan13pM'           # Chill Dates
-MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Dates
+ENCOURAGEMENT_ID = ''   # Daily Encouragement
+SCA_BDAY_ID = ''        # Sca's Birthday Wishes
+HAN_BDAY_ID = ''        # Han's Birthday Wishes
+ANNIVERSARY_ID = ''     # Anniversary Wishes
+VDAY_ID = ''            # Valentine's Day Wishes
+XMAS_ID = ''            # Christmas Wishes
+ADVENTURE_ID = ''       # Adventure Dates
+OVERSEAS_ID = ''        # Overseas Dates
+CHILL_ID = ''           # Chill Dates
+MOVIE_ID = ''           # Movie Dates
 
 # Telegram
-TELEGRAM_TOKEN = '1032322197:AAHQm4mkuvVu7RLA56vLuX_RZ-_Ph9tfZp8'
-HAN_ID = 41459978
+TELEGRAM_TOKEN = ''     # INSERT TELEGRAM TOKEN
+HAN_ID = 0              # INSERT YOUR TELEGRAM ID
+SCA_ID = 0              # INSERT YOUR PARTNER'S TELEGRAM ID
 
 # Special Dates
 day0 = datetime.date(2020,5,17)         # Anniversary
@@ -488,7 +489,7 @@ def main():
     job = updater.job_queue
 
     # TESTING
-    job.run_repeating(daily_encouragement, interval=3600, first=60) # Daily Encouragments
+    job.run_repeating(daily_encouragement, interval=60, first=60) # Daily Encouragments
     job.run_repeating(special_day, interval=30, first=0) # Check if it is a special day
 
     # ACTUAL

@@ -12,16 +12,16 @@ import copy
 SCOPES = ['https://www.googleapis.com/auth/documents.readonly']
 
 # The ID of a sample document.
-ENCOURAGEMENT_ID = '1X7_sLXuItIkqqVcNGxIUee1Jr6PH-tUbuJRpHNyrgeg'   # Daily Encouragement
-SCA_BDAY_ID = '1l2Z5OaAGvThcKl8gV_UG7TibeRZcifKCZrk_1YEJRRs'        # Sca's Birthday Wishes
-HAN_BDAY_ID = '1GFWs2CLi6pgAkGNZdL3f72s6z4F7gTUjWf0umh5pJaQ'        # Han's Birthday Wishes
-ANNIVERSARY_ID = '1BafCtdVX3K83XorhrtP_RHip3Tm6abyO6K14VomdCNo'     # Anniversary Wishes
-VDAY_ID = '1rlurNZuwP64XeDrQ1fB2Tf_-Y5TQ_4RSwcrhizTOeik'            # Valentine's Day Wishes
-XMAS_ID = '1oMUFCsPRxXmpc9NSx1Zy_8-FtwjiXeio0DlEbpu8STY'            # Christmas Wishes
-ADVENTURE_ID = '1NjLSUb4_AO3AVJMvzhIEIn-Gj6EPtvzH_Wz-U_gsGec'       # Adventure Dates
-OVERSEAS_ID = '1A9YNtzjhJbNw-8748HCXMA4haMRdgzL-ff7e_jB6rAQ'        # Overseas Dates
-CHILL_ID = '1wMemluKDnRZKGf25cNYvr5Y-IO_oo4BQ2eDOFan13pM'           # Chill Dates
-MOVIE_ID = '1hz_xBIl8dDEUnezoQp1lYje9hSFNbb51jjKWCOnUYaY'           # Movie Dates
+ENCOURAGEMENT_ID = ''   # Daily Encouragement
+SCA_BDAY_ID = ''        # Sca's Birthday Wishes
+HAN_BDAY_ID = ''        # Han's Birthday Wishes
+ANNIVERSARY_ID = ''     # Anniversary Wishes
+VDAY_ID = ''            # Valentine's Day Wishes
+XMAS_ID = ''            # Christmas Wishes
+ADVENTURE_ID = ''       # Adventure Dates
+OVERSEAS_ID = ''        # Overseas Dates
+CHILL_ID = ''           # Chill Dates
+MOVIE_ID = ''           # Movie Dates
 ID_LIST = [ENCOURAGEMENT_ID, SCA_BDAY_ID, HAN_BDAY_ID, ANNIVERSARY_ID, VDAY_ID, XMAS_ID, ADVENTURE_ID, OVERSEAS_ID, CHILL_ID, MOVIE_ID]
 
 used = []
@@ -46,24 +46,24 @@ def main():
 
     service = build('docs', 'v1', credentials=creds)
 
-    # title_lst = ["Sca's Birthday Wishes", "Han's Birthday Wishes", "Anniversary Wishes", "Valentine's Day Wishes", "Christmas Wishes", "Adventure Dates", "Overseas Dates", "Chill Dates", "Movie Dates"]
-    # for element in title_lst:
-    #     title = element
-    #     body = {
-    #         'title': title
-    #     }
-    #     doc = service.documents() \
-    #         .create(body=body).execute()
-    #     print('Created document with title: {0}'.format(
-    #         doc.get('title')))
+    title_lst = ["Sca's Birthday Wishes", "Han's Birthday Wishes", "Anniversary Wishes", "Valentine's Day Wishes", "Christmas Wishes", "Adventure Dates", "Overseas Dates", "Chill Dates", "Movie Dates"]
 
+    for element in title_lst:
+        title = element
+        body = {
+            'title': title
+        }
+        doc = service.documents() \
+            .create(body=body).execute()
+        print('Created document with title: {0}'.format(
+            doc.get('title')))
 
     # Retrieve the documents contents from the Docs service.
     # document = service.documents().get(documentId=PBDAY_ID).execute()
-    for documentID in ID_LIST:
-        document = service.documents().get(documentId=documentID).execute()
-        print('Browsing through document with title: {0}'.format(document.get('title')))
-        select_encouragement(document)
+    # for documentID in ID_LIST:
+    #     document = service.documents().get(documentId=documentID).execute()
+    #     print('Browsing through document with title: {0}'.format(document.get('title')))
+    #     select_encouragement(document)
 
 def select_encouragement(document):
     content = document.get('body').get('content')
