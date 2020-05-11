@@ -42,4 +42,7 @@ This repository is mainly for the development of a Telegram bot that I have made
 - To distinguish a sentence, I will add each line to form the sentence until the line is an empty line. This sentence will then be appended into the `sentence_lst` list if it is not in the list stated in the `used` dictionary.
 - Using a random generator, I then randomly select a sentence from `sentence_lst` and that is my output for the function.
 
+### Heroku App
+To ensure that the Telegram bot is persistently running 24/7, it is currently hosted on Heroku App with one worker running.
+
 ##### NOTE: This is a self-initiated project that is used for me to chase the girl of my dreams and for us to explore life together in a unique and interesting way! I will not disclose the blog and telegram bot details! Even you manage to access the telegram bot, you will be told that "You do not belong here!"
