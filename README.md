@@ -2,11 +2,11 @@
 This repository is mainly for the development of a Telegram bot that I have made to ask a very special girl in my life to be my girlfriend.
 
 ### Commands
-`/start`: By starting the bot, it means that the girl you have been chasing has finally said YES!
-`/write`: Support each other with a word of encouragement!
-`/journal`: Store our favourite photos and caption it! Let's keep our memories!
-`/viewjournal`: Let's visit memory lane!
-`/date`: Make dating fun with wild ideas!
+`/start`: By starting the bot, it means that the girl you have been chasing has finally said YES!<br/>
+`/write`: Support each other with a word of encouragement!<br/>
+`/journal`: Store our favourite photos and caption it! Let's keep our memories!<br/>
+`/viewjournal`: Let's visit memory lane!<br/>
+`/date`: Make dating fun with wild ideas!<br/>
 
 ### Functionalities
 1. `/write`
