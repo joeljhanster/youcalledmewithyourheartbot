@@ -1,5 +1,5 @@
 # youcalledmewithyourheartbot
-This repository is mainly for the development of a Telegram bot that I have made to ask a very special girl in my life to be my girlfriend.
+This repository is mainly for the development of a Telegram bot that I have made to ask a very special girl in my life to be my girlfriend. Just trying my best to learn new things and apply them to my own personal life!
 
 ### Commands
 `/start`: By starting the bot, it means that the girl you have been chasing has finally said YES!<br/>
