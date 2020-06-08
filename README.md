@@ -13,7 +13,7 @@ This repository is mainly for the development of a Telegram bot that I have made
 - This command allows you to write a message to your partner!
 - Sometimes, it is always nice to hear a word of encouragement from your partner! Even more so, when it comes as a surprise!
 
-<img src="https://www.github.com/joeljhanster/youcalledmwithyourheart/blob/master/write.png" width=80% align=center />
+<img src="https://www.github.com/joeljhanster/youcalledmewithyourheart/blob/master/write.png" width=80% align=center />
 
 2. `/journal`
 - This command involves the use of Google and Blogger API because any updates will be translated into a Blogger post!
