@@ -17,13 +17,15 @@ This repository is mainly for the development of a Telegram bot that I have made
 2. `/journal`
 - This command involves the use of Google and Blogger API because any updates will be translated into a Blogger post!
 - This process comes in 3 phases: 1) Upload a photo 2) Insert a title 3) Write a caption
+<p align=center>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal1.png" width=30%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal2.png" width=30%/>
+</p>
 
 3. `/viewjournal`
 - This command tells you where you can find all the Blogger posts created from `/journal` command!
 - In essence, this provides the Blogger URL!
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal1.png" width=30%/>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal2.png" width=30%/>
   <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal3.png" width=50%/>
 </p>
 
@@ -31,6 +33,10 @@ This repository is mainly for the development of a Telegram bot that I have made
 - This command uses a random generator to select a dating idea from a list created in Google Docs!
 - Using the Telegram Keyboard Markup, 4 categories are created (namely Adventure, Chill, Overseas, Learning)
 - Each category will reference a different Google Docs file and it will randomly select a sentence using the `select_sentence(document, messageType)` function. More information about this function can be found below.
+<p align=center>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/date1.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/date2.png" width=50%/>
+</p>
 
 5. Daily Encouragement
 - Using Telegram's Job Queue, the bot will send an encouragement message every day at a special timing!
