@@ -41,10 +41,16 @@ This repository is mainly for the development of a Telegram bot that I have made
 5. Daily Encouragement
 - Using Telegram's Job Queue, the bot will send an encouragement message every day at a special timing!
 - This uses the `select_sentence(document, messageType)` function as well.
+<p align=center>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/encourage.png" width=50%/>
+</p>
 
 6. Special Day
 - The bot will also check if it is a special day, e.g. Birthdays, Anniversary, Valentine's Day etc.
 - At 12am, it will send a lovely personalised message! Followed by a GIF that uses `select_sentence(document, messageType)` function too!
+<p align=center>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/special.png" width=50%/>
+</p>
 
 ### Code
 `select_sentence(document, messageType)`
