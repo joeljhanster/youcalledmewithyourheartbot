@@ -21,6 +21,10 @@ This repository is mainly for the development of a Telegram bot that I have made
 3. `/viewjournal`
 - This command tells you where you can find all the Blogger posts created from `/journal` command!
 - In essence, this provides the Blogger URL!
+<p align=center>
+<img src="https://github.com/joeljhanster/youcalledmewithyourheadbot/blob/master/journal1.png" width=50%/>
+<img src="https://github.com/joeljhanster/youcalledmewithyourheadbot/blob/master/journal2.png" width=50%/>
+</p>
 
 4. `/date`
 - This command uses a random generator to select a dating idea from a list created in Google Docs!
