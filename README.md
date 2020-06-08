@@ -12,21 +12,21 @@ This repository is mainly for the development of a Telegram bot that I have made
 1. `/write`
 - This command allows you to write a message to your partner!
 - Sometimes, it is always nice to hear a word of encouragement from your partner! Even more so, when it comes as a surprise!
-<p align=center><img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/write.png" width=50% /></p>
+<p align=center><img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/write.png" width=50% /></p>
 
 2. `/journal`
 - This command involves the use of Google and Blogger API because any updates will be translated into a Blogger post!
 - This process comes in 3 phases: 1) Upload a photo 2) Insert a title 3) Write a caption
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal1.png" width=30%/>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal2.png" width=30%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/journal1.png" width=30%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/journal2.png" width=30%/>
 </p>
 
 3. `/viewjournal`
 - This command tells you where you can find all the Blogger posts created from `/journal` command!
 - In essence, this provides the Blogger URL!
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/journal3.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/journal3.png" width=50%/>
 </p>
 
 4. `/date`
@@ -34,22 +34,22 @@ This repository is mainly for the development of a Telegram bot that I have made
 - Using the Telegram Keyboard Markup, 4 categories are created (namely Adventure, Chill, Overseas, Learning)
 - Each category will reference a different Google Docs file and it will randomly select a sentence using the `select_sentence(document, messageType)` function. More information about this function can be found below.
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/date1.png" width=50%/>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/date2.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/date1.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/date2.png" width=50%/>
 </p>
 
 5. Daily Encouragement
 - Using Telegram's Job Queue, the bot will send an encouragement message every day at a special timing!
 - This uses the `select_sentence(document, messageType)` function as well.
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/encourage.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/encourage.png" width=50%/>
 </p>
 
 6. Special Day
 - The bot will also check if it is a special day, e.g. Birthdays, Anniversary, Valentine's Day etc.
 - At 12am, it will send a lovely personalised message! Followed by a GIF that uses `select_sentence(document, messageType)` function too!
 <p align=center>
-  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/special.png" width=50%/>
+  <img src="https://github.com/joeljhanster/youcalledmewithyourheartbot/blob/master/images/special.png" width=50%/>
 </p>
 
 ### Code
